@@ -1027,15 +1027,15 @@ DRESULT disk_ioctl(BYTE drv, BYTE ctrl, void *buff)
 	return RES_PARERR;
 }
 
-// описание структуры времени FAT
+
 typedef struct
 {
-	DWORD 	sec: 	5;	// биты 0-4, 1 ед. = 2 сек
-	DWORD	min:	6;	// биты 5-10
-	DWORD	hour:	5;	// биты 11-15
-	DWORD	day:	5;	// биты 16-20
-	DWORD	month:	4;	// биты 21-24
-	DWORD	year:	7;	// биты 25-31
+	DWORD sec: 	5;	
+	DWORD	min:	6;	
+	DWORD	hour:	5;	
+	DWORD	day:	5;	
+	DWORD	month:4;	
+	DWORD	year:	7;	
 } fat_time_t;
 
 //DWORD get_fattime(void)
