@@ -1,16 +1,5 @@
 #include "stm32f10x_conf.h"
-#include <stdio.h>
-
-#include "tim2_delay.h"
-#include "lcd1602.h"
-#include "rtc.h"
-#include "sdcard.h"
-//#include "adc.h"
-#include "led.h"
-
-RTC_DateTimeTypeDef RTC_DateTime;
-
-uint16_t ADCBuffer[] = {0x0000, 0x0000, 0x0000, 0x0000};
+#include "adc.h"
 
 void ADC1_Configure(void)
 {
@@ -67,65 +56,3 @@ void DMAInit_ADCRecieve(void)
 	ADC1_Configure();
 }
 
-
-int main(void)
-{
-	SetLEDsPins();
-   
-	char buffer[20] = {'\0'};
-	char timeBuffer[20] = {'\0'};
-	
-	char firstValueADC[17];
-	char secondValueADC[17];
-	
-	uint32_t RTC_Counter = 0;
-	SetSysClockToHSE();
-	TIM2_init();
-		
-	DMAInit_ADCRecieve();
-	
-	I2CInit();	
-	lcd_init();
-
-	if(RTC_Init() == 1)
-	{
-		RTC_DateTime.RTC_Date = 30;
-		RTC_DateTime.RTC_Month = 1;
-		RTC_DateTime.RTC_Year = 2020;
-
-		RTC_DateTime.RTC_Hours = 16;
-		RTC_DateTime.RTC_Minutes = 42;
-		RTC_DateTime.RTC_Seconds = 30;
-
-		delay_ms(500);
-		RTC_SetCounter(RTC_GetRTC_Counter(&RTC_DateTime));
-	}
-		
-	while(1)
-	{
-		RTC_Counter = RTC_GetCounter();
-		
-		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
-		
-//		sprintf(buffer, "%02d.%02d.%04d", RTC_DateTime.RTC_Date, RTC_DateTime.RTC_Month, RTC_DateTime.RTC_Year);
-//		sprintf(timeBuffer, "%02d:%02d:%02d", RTC_DateTime.RTC_Hours, RTC_DateTime.RTC_Minutes, RTC_DateTime.RTC_Seconds);
-//		
-//		Display_Print(buffer, 3, 0);
-//		Display_Print(timeBuffer, 4, 1);	
-		
-		sprintf(firstValueADC, "Ia=%04d  Ib=%04d", ADCBuffer[0], ADCBuffer[1]);
-		sprintf(secondValueADC, "Ic=%04d  Id=%04d", ADCBuffer[2], ADCBuffer[3]);
-			
-		Display_Print(firstValueADC, 0, 0);
-		Display_Print(secondValueADC, 0, 1);
-		
-		test_SD_3(ADCBuffer, RTC_DateTime.RTC_Hours, RTC_DateTime.RTC_Minutes, RTC_DateTime.RTC_Seconds);
-		
-		BlinkLeds();
-		
-		while (RTC_Counter == RTC_GetCounter()) 
-		{
-
-		}
-	}
-}
