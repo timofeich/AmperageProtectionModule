@@ -101,7 +101,7 @@ void test_SD_3(uint16_t sensorData[4], uint8_t hours, uint8_t minutes, uint8_t s
 		result = f_mkdir("Log_19.02.2020");
 
 		f_open(&file, "0:Log_19.02.2020/Log_15-43-00.txt", FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
-		f_puts("Time	Ia(A)	Ib(A)	Ic(A)	U(V)\n", &file);
+		f_puts("Time	Ia(A)	Ib(A)	Ic(A)	U(V)\n", &file);//TODO: try \t symbols
 		f_printf(&file, "%02d:%02d:%02d	%03d	%03d	%03d	%03d\n", hours, minutes, seconds,
 				sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
 		f_close(&file);

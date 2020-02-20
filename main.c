@@ -67,7 +67,6 @@ void DMAInit_ADCRecieve(void)
 	ADC1_Configure();
 }
 
-
 int main(void)
 {
 	SetLEDsPins();
@@ -89,7 +88,7 @@ int main(void)
 
 	if(RTC_Init() == 1)
 	{
-		RTC_DateTime.RTC_Date = 30;
+		RTC_DateTime.RTC_Date = 30;//TODO; create function - SetStartRTCData()  
 		RTC_DateTime.RTC_Month = 1;
 		RTC_DateTime.RTC_Year = 2020;
 
@@ -113,7 +112,7 @@ int main(void)
 //		Display_Print(buffer, 3, 0);
 //		Display_Print(timeBuffer, 4, 1);	
 		
-		sprintf(firstValueADC, "Ia=%04d  Ib=%04d", ADCBuffer[0], ADCBuffer[1]);
+		sprintf(firstValueADC, "Ia=%04d  Ib=%04d", ADCBuffer[0], ADCBuffer[1]);//TODO: create function - OutputDataOnDisplay
 		sprintf(secondValueADC, "Ic=%04d  Id=%04d", ADCBuffer[2], ADCBuffer[3]);
 			
 		Display_Print(firstValueADC, 0, 0);

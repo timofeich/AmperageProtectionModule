@@ -30,14 +30,10 @@ void SetSysClockToHSE(void)
 
 uint8_t RTC_Init(void)
 {
-	// Включить тактирование модулей управления питанием и управлением резервной областью
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
-	// Разрешить доступ к области резервных данных
 	PWR_BackupAccessCmd(ENABLE);
-	// Если RTC выключен - инициализировать
 	if ((RCC->BDCR & RCC_BDCR_RTCEN) != RCC_BDCR_RTCEN)
 	{
-		// Сброс данных в резервной области
 		RCC_BackupResetCmd(ENABLE);
 		RCC_BackupResetCmd(DISABLE);
 
@@ -48,10 +44,9 @@ uint8_t RTC_Init(void)
 		RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 			
 		RTC_SetPrescaler(0x7FFF); // Устанавливаем делитель, чтобы часы считали секунды
-		// Включаем RTC
+
 		RCC_RTCCLKCmd(ENABLE);
 
-		// Ждем синхронизацию
 		RTC_WaitForSynchro();
 			return 1;
 	}
@@ -62,8 +57,6 @@ uint8_t RTC_Init(void)
 // (UnixTime = 00:00:00 01.01.1970 = JD0 = 2440588)
 #define JULIAN_DATE_BASE	2440588
 
-
-// Get current date
 void RTC_GetDateTime(uint32_t RTC_Counter, RTC_DateTimeTypeDef* RTC_DateTimeStruct) 
 {
 	unsigned long time;
@@ -114,7 +107,6 @@ void RTC_GetDateTime(uint32_t RTC_Counter, RTC_DateTimeTypeDef* RTC_DateTimeStru
 	RTC_DateTimeStruct -> RTC_Wday = wday;
 }
 
-// Convert Date to Counter
 uint32_t RTC_GetRTC_Counter(RTC_DateTimeTypeDef* RTC_DateTimeStruct) 
 {
 	uint8_t a;
