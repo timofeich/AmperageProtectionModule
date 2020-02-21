@@ -67,6 +67,19 @@ void DMAInit_ADCRecieve(void)
 	ADC1_Configure();
 }
 
+void Init_IWDG(u16 tw) // ѕараметр tw от 7мс до 26200мс
+{
+	// включаем LSI
+	RCC_LSICmd(ENABLE);
+	while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET);
+	// ƒл¤ IWDG_PR=7 Tmin=6,4мс RLR=Tмс*40/256
+	IWDG->KR=0x5555; //  люч дл¤ доступа к таймеру
+	IWDG->PR=7; // ќбновление IWDG_PR
+	IWDG->RLR=tw*40/256; // «агрузить регистр перезагрузки
+	IWDG->KR=0xAAAA; // ѕерезагрузка
+	IWDG->KR=0xCCCC; // ѕуск таймера
+}
+
 int main(void)
 {
 	SetLEDsPins();
@@ -81,10 +94,12 @@ int main(void)
 	SetSysClockToHSE();
 	TIM2_init();
 		
-	DMAInit_ADCRecieve();
+	Init_IWDG(7000);
 	
 	I2CInit();	
 	lcd_init();
+	
+	DMAInit_ADCRecieve();
 
 	if(RTC_Init() == 1)
 	{

@@ -67,5 +67,6 @@ void delay_ms(uint32_t n_msec)
 	TIM_Cmd(TIM2, ENABLE);
 
 	while(f_timer_2_end == 0);
+	IWDG->KR=0xAAAA; // ѕерезагрузка
 }
 
