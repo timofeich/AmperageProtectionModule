@@ -80,13 +80,13 @@ void Init_IWDG(u16 tw) // ѕараметр tw от 7мс до 26200мс
 	IWDG->KR=0xCCCC; // ѕуск таймера
 }
 
+
 int main(void)
 {
 	SetLEDsPins();
    
 	char buffer[20] = {'\0'};
 	char timeBuffer[20] = {'\0'};
-	
 	char firstValueADC[17];
 	char secondValueADC[17];
 	
@@ -94,21 +94,22 @@ int main(void)
 	SetSysClockToHSE();
 	TIM2_init();
 		
-	Init_IWDG(7000);
+	//Init_IWDG(7000);
 	
-	I2CInit();	
-	lcd_init();
+//	I2CInit();	
+//	lcd_init();
 	
 	DMAInit_ADCRecieve();
 
+	//CreateHomeDirectory();
 	if(RTC_Init() == 1)
 	{
 		RTC_DateTime.RTC_Date = 30;//TODO; create function - SetStartRTCData()  
 		RTC_DateTime.RTC_Month = 1;
 		RTC_DateTime.RTC_Year = 2020;
 
-		RTC_DateTime.RTC_Hours = 16;
-		RTC_DateTime.RTC_Minutes = 42;
+		RTC_DateTime.RTC_Hours = 13;
+		RTC_DateTime.RTC_Minutes = 36;
 		RTC_DateTime.RTC_Seconds = 30;
 
 		delay_ms(500);
@@ -127,19 +128,21 @@ int main(void)
 //		Display_Print(buffer, 3, 0);
 //		Display_Print(timeBuffer, 4, 1);	
 		
-		sprintf(firstValueADC, "Ia=%04d  Ib=%04d", ADCBuffer[0], ADCBuffer[1]);//TODO: create function - OutputDataOnDisplay
-		sprintf(secondValueADC, "Ic=%04d  Id=%04d", ADCBuffer[2], ADCBuffer[3]);
-			
-		Display_Print(firstValueADC, 0, 0);
-		Display_Print(secondValueADC, 0, 1);
+//		sprintf(firstValueADC, "Ia=%04d  Ib=%04d", ADCBuffer[0], ADCBuffer[1]);//TODO: create function - OutputDataOnDisplay
+//		sprintf(secondValueADC, "Ic=%04d  Id=%04d", ADCBuffer[2], ADCBuffer[3]);
+//			
+//		Display_Print(firstValueADC, 0, 0);
+//		Display_Print(secondValueADC, 0, 1);
 		
-		test_SD_3(ADCBuffer, RTC_DateTime.RTC_Hours, RTC_DateTime.RTC_Minutes, RTC_DateTime.RTC_Seconds);
-		
+		//SendSensorData(ADCBuffer, RTC_DateTime.RTC_Hours, RTC_DateTime.RTC_Minutes, RTC_DateTime.RTC_Seconds);
+		//test_SD_2();
 		BlinkLeds();
+		
+		SendSensorData(ADCBuffer, RTC_DateTime.RTC_Hours, RTC_DateTime.RTC_Minutes, RTC_DateTime.RTC_Seconds);
 		
 		while (RTC_Counter == RTC_GetCounter()) 
 		{
-
+			
 		}
 	}
 }

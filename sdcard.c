@@ -88,7 +88,8 @@ void test_SD_2()
 	f_mount(0, 0);  
 }
 
-void test_SD_3(uint16_t sensorData[4], uint8_t hours, uint8_t minutes, uint8_t seconds)
+
+void SendSensorData(uint16_t sensorData[4], uint8_t hours, uint8_t minutes, uint8_t seconds)
 {
 	DIR dir;
 	static FATFS FATFS_Obj;
@@ -98,15 +99,16 @@ void test_SD_3(uint16_t sensorData[4], uint8_t hours, uint8_t minutes, uint8_t s
 
 	if (result == FR_OK)
 	{
-		result = f_mkdir("Log_19.02.2020");
-
+		//result = f_mkdir("Log_19.02.2020");
 		f_open(&file, "0:Log_19.02.2020/Log_15-43-00.txt", FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
-		f_puts("Time of record \t Ia(A) \t Ib(A) \t Ic(A) \t U(V)\n", &file);//TODO: try \t symbols
-		for(int i = 0; i < 10; i++)
-		{
-			f_printf(&file, "%02d:%02d:%02d \t %03d \t %03d \t %03d \t %03d\n", hours, minutes, seconds,
+		f_puts("Time of record \t Ia(A) \t Ib(A) \t Ic(A) \t U(V)\r", &file);//TODO: try \t symbols
+		
+		if(file.fsize)
+		result = f_lseek(&file, file.fsize); 
+
+		f_printf(&file, "%02d:%02d:%02d \t %03d \t %03d \t %03d \t %03d\r", hours, minutes, seconds,
 				sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
-		}
+
 		f_close(&file);
 	}
 	
