@@ -29,16 +29,6 @@ void I2CInit(void)
 
 	I2C_Cmd(I2C1, ENABLE);
 	I2C_Init(I2C1, &I2C_InitStructure);
-
-	//	NVIC_InitTypeDef  NVIC_InitStructure;
-	//	NVIC_InitStructure.NVIC_IRQChannel = I2C1_ER_IRQn;
-	//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-	//	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
-	//	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	//	NVIC_Init(&NVIC_InitStructure);
-
-	//	I2C_ITConfig(I2C1, I2C_IT_ERR, ENABLE); //Включаем прерывание по приему байта	
-	//	NVIC_EnableIRQ(I2C1_ER_IRQn);
 }
 
 void lcd_init (void)

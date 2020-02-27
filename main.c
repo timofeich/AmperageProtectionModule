@@ -7,6 +7,12 @@
 #include "sdcard.h"
 #include "led.h"
 
+// 1) Создвать папки с файлами Название папки - today дата
+// 2) По наступлению след дня создавать новую папку
+
+// 4) Если флешка заполнилась то ...
+
+
 RTC_DateTimeTypeDef RTC_DateTime;
 uint16_t ADCBuffer[] = {0x0000, 0x0000, 0x0000, 0x0000};
 
@@ -69,8 +75,7 @@ void Init_IWDG(u16 tw) // ѕараметр tw от 7мс до 26200мс
 {
 	// включаем LSI
 	RCC_LSICmd(ENABLE);
-	while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET);
-	// ƒл¤ IWDG_PR=7 Tmin=6,4мс RLR=Tмс*40/256
+	while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET); // ƒл¤ IWDG_PR=7 Tmin=6,4мс RLR=Tмс*40/256
 	IWDG->KR=0x5555; //  люч дл¤ доступа к таймеру
 	IWDG->PR=7; // ќбновление IWDG_PR
 	IWDG->RLR=tw*40/256; // «агрузить регистр перезагрузки
@@ -92,7 +97,7 @@ int main(void)
 	SetSysClockToHSE();
 	TIM2_init();
 		
-	//Init_IWDG(7000);
+	Init_IWDG(2000);
 	
 	I2CInit();	
 	lcd_init();
@@ -133,6 +138,7 @@ int main(void)
 //		Display_Print(secondValueADC, 0, 1);
 		
 		SendSensorData(ADCBuffer, RTC_DateTime.RTC_Hours, RTC_DateTime.RTC_Minutes, RTC_DateTime.RTC_Seconds);
+		IWDG->KR=0xAAAA; // ѕерезагрузка
 		BlinkLeds();
 				
 		while (RTC_Counter == RTC_GetCounter()) 
