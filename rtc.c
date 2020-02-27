@@ -1,4 +1,3 @@
-#include "stm32f10x_conf.h"
 #include "rtc.h"
 
 int year = 0;

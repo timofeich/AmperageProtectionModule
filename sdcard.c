@@ -1,14 +1,13 @@
-#include "ff.h"
-#include "stm32f10x_conf.h"
-#include "rtc.h"
+#include "sdcard.h"
 
 volatile FRESULT result;
 static XCHAR CurrentLogFileName[17];
 static XCHAR CurrentLogDirectoryName[17];
+static XCHAR CurrentLogPath[35];
 DWORD isSDCardEmpty, freeClusters;
 char	buff[1024];		
 
-void SendSensorData(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_DateTimeStruct)
+void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 {
 	DIR dir;
 	static FATFS FATFS_Obj;
@@ -20,15 +19,17 @@ void SendSensorData(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_DateTimeStr
 	uint8_t minutes = RTC_DateTimeStruct -> RTC_Minutes;
 	uint8_t seconds = RTC_DateTimeStruct -> RTC_Seconds;
 		
-
-	
 	result = f_mount(0, &FATFS_Obj);
 
 	if (result == FR_OK)
-	{
-
+	{	
+		sprintf(CurrentLogDirectoryName, "Log_%02d.%02d.%04d",  RTC_DateTimeStruct -> RTC_Date,  
+		RTC_DateTimeStruct -> RTC_Month,  RTC_DateTimeStruct -> RTC_Year);
+		result = f_mkdir(CurrentLogDirectoryName);
+		result = f_opendir(&dir, CurrentLogDirectoryName);
+		sprintf(CurrentLogPath, "0:/%s/%s", CurrentLogDirectoryName, CurrentLogFileName);
 		
-		result = f_open(&file, CurrentLogFileName, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
+		result = f_open(&file, CurrentLogPath, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
 		f_puts("Time of record \t Ia(A) \t Ib(A) \t Ic(A) \t U(V)\r\n", &file);
 		
 		if(file.fsize < 5000000 && CurrentLogFileName[0] != 0)//&& isSDCardEmpty != 0
@@ -44,8 +45,9 @@ void SendSensorData(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_DateTimeStr
 		else 
 		{			
 			sprintf(CurrentLogFileName, "Log_%02d-%02d-%02d.txt", hours, minutes, seconds);
-
-			result = f_open(&file, CurrentLogFileName, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
+			sprintf(CurrentLogPath, "0:/%s/%s", CurrentLogDirectoryName, CurrentLogFileName);
+			
+			result = f_open(&file, CurrentLogPath, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
 			f_puts("Time of record \t Ia(A) \t Ib(A) \t Ic(A) \t U(V)\r\n", &file);	
 			
 			result = f_lseek(&file, file.fsize); 
@@ -67,7 +69,6 @@ void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 {
 	static DIR dir;
 	static FATFS FATFS_Obj;
-	static FIL file;
       static FILINFO fileInfo;
 	static XCHAR lfname[_MAX_LFN];
 	
@@ -82,21 +83,22 @@ void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 	{
 		result = f_mkdir(CurrentLogDirectoryName);
 		result = f_opendir(&dir, CurrentLogDirectoryName);
-
-		for(;;)
+		if(result)
 		{
-			result = f_readdir(&dir, &fileInfo);
-			if ((result != FR_OK) || (fileInfo.fname[0] == 0))
-			break;
-			sprintf(CurrentLogFileName, fileInfo.lfname);	
-		}	
-				
-		if(fileInfo.fname[0] == 0)
-		{
-			isSDCardEmpty = FATFS_Obj.csize * ((FATFS_Obj.max_clust - 2) - FATFS_Obj.free_clust);
-		}
-		
-		f_close(&file);		
+			for(;;)
+			{
+				result = f_readdir(&dir, &fileInfo);
+				if ((result != FR_OK) || (fileInfo.fname[0] == 0))
+				break;
+				sprintf(CurrentLogFileName, fileInfo.lfname);
+				sprintf(CurrentLogPath, "0:/%s/%s", CurrentLogDirectoryName, CurrentLogFileName);
+			}	
+					
+			if(fileInfo.fname[0] == 0)
+			{
+				isSDCardEmpty = FATFS_Obj.csize * ((FATFS_Obj.max_clust - 2) - FATFS_Obj.free_clust);
+			}
+		}		
 	}
 	result = f_mount(0, 0);
 }

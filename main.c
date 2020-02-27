@@ -6,144 +6,101 @@
 #include "rtc.h"
 #include "sdcard.h"
 #include "led.h"
+#include "DmaWithAdc.h"
 
-// 1) Создвать папки с файлами Название папки - today дата
-// 2) По наступлению след дня создавать новую папку
-// 4) Если флешка заполнилась то ...
+// TODO: 1) If flash is full -> ?
+//	   2) Check current module working
 
 RTC_DateTimeTypeDef RTC_DateTime;
-uint16_t ADCBuffer[] = {0x0000, 0x0000, 0x0000, 0x0000};
+uint16_t ADCBuffer[4] = {0x0000, 0x0000, 0x0000, 0x0000};
 
-void ADC1_Configure(void)
+
+void OutputDateAtDisplay(void)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
+	char buffer[20];
+	char timeBuffer[20];
 	
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-	ADC_InitTypeDef ADC_InitStructure;
-	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
-	ADC_InitStructure.ADC_ScanConvMode = DISABLE;
-	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;  // we work in continuous sampling mode
-	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
-	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-	ADC_InitStructure.ADC_NbrOfChannel = 1;
-
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_28Cycles5); // define regular conversion config
-	ADC_Init ( ADC1, &ADC_InitStructure);   //set config of ADC1
-
-	ADC_Cmd (ADC1,ENABLE);  //enable ADC1
-
-	ADC_ResetCalibration(ADC1); // Reset previous calibration
-	while(ADC_GetResetCalibrationStatus(ADC1));
-	ADC_StartCalibration(ADC1); // Start new calibration (ADC must be off at that time)
-	while(ADC_GetCalibrationStatus(ADC1));
-
-	ADC_Cmd(ADC1 , ENABLE ) ;
-	ADC_DMACmd(ADC1 , ENABLE );
-
-	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
+	sprintf(buffer, "%02d.%02d.%04d", RTC_DateTime.RTC_Date, RTC_DateTime.RTC_Month, RTC_DateTime.RTC_Year);
+	sprintf(timeBuffer, "%02d:%02d:%02d", RTC_DateTime.RTC_Hours, RTC_DateTime.RTC_Minutes, RTC_DateTime.RTC_Seconds);
+	
+	PrintDataOnLCD(buffer, 3, 0);
+	PrintDataOnLCD(timeBuffer, 4, 1);
 }
 
-void DMAInit_ADCRecieve(void)
+void OutputADCDataAtDisplay()
 {
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);	
-	DMA_InitTypeDef DMA_InitStructure;
-	DMA_InitStructure.DMA_BufferSize = 4;
-	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)ADCBuffer;
-	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
-	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&ADC1->DR;
-	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
-	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
-	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
-	DMA_Cmd(DMA1_Channel1 , ENABLE ) ;
-
-	ADC1_Configure();
+	char firstValueADC[17];
+	char secondValueADC[17];
+	
+	sprintf(firstValueADC, "Ia=%04d  Ib=%04d", ADCBuffer[0], ADCBuffer[1]);
+	sprintf(secondValueADC, "Ic=%04d  Id=%04d", ADCBuffer[2], ADCBuffer[3]);
+		
+	PrintDataOnLCD(firstValueADC, 0, 0);
+	PrintDataOnLCD(secondValueADC, 0, 1);
 }
 
-void Init_IWDG(u16 tw) // ѕараметр tw от 7мс до 26200мс
+void SetStartRTCDate(uint8_t day, uint8_t month, uint16_t year, 
+		uint8_t hours, uint8_t minutes, uint8_t seconds)
 {
-	// включаем LSI
-	RCC_LSICmd(ENABLE);
-	while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET); // ƒл¤ IWDG_PR=7 Tmin=6,4мс RLR=Tмс*40/256
-	IWDG -> KR = 0x5555; //  люч дл¤ доступа к таймеру
-	IWDG -> PR = 7; // ќбновление IWDG_PR
-	IWDG -> RLR = tw * 40 / 256; // «агрузить регистр перезагрузки
-	IWDG -> KR = 0xAAAA; // ѕерезагрузка
-	IWDG -> KR = 0xCCCC; // ѕуск таймера
+	RTC_DateTime.RTC_Date = day; 
+	RTC_DateTime.RTC_Month = month;
+	RTC_DateTime.RTC_Year = year;
+
+	RTC_DateTime.RTC_Hours = hours;
+	RTC_DateTime.RTC_Minutes = minutes;
+	RTC_DateTime.RTC_Seconds = seconds;
+
+	delay_ms(500);
+	RTC_SetCounter(RTC_GetRTC_Counter(&RTC_DateTime));
+}	
+
+
+void DetectCurrentLogFile(uint32_t RTC_Counter)
+{
+	RTC_Counter = RTC_GetCounter();
+	RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
+	GetCurrentLogFile(&RTC_DateTime);
 }
 
 int main(void)
 {
-	SetLEDsPins();
-   
-	char buffer[20] = {'\0'};
-	char timeBuffer[20] = {'\0'};
-	char firstValueADC[17];
-	char secondValueADC[17];
-	
 	uint32_t RTC_Counter = 0;
+	
+	LEDsInitialization();
 	SetSysClockToHSE();
-	TIM2_init();
+	Timer2Initialization();
 		
-	Init_IWDG(2000);
+	IWDGInitialization(2000);
 	
-	I2CInit();	
-	lcd_init();
+	I2CInitialization();	
+	LCDInitialization();
 	
-	DMAInit_ADCRecieve();
+	DMAInitializationForADCRecieve(ADCBuffer);
 	
 	if(RTC_Init() == 1)
 	{
-		RTC_DateTime.RTC_Date = 30;//TODO; create function - SetStartRTCData()  
-		RTC_DateTime.RTC_Month = 1;
-		RTC_DateTime.RTC_Year = 2020;
-
-		RTC_DateTime.RTC_Hours = 13;
-		RTC_DateTime.RTC_Minutes = 36;
-		RTC_DateTime.RTC_Seconds = 30;
-
-		delay_ms(500);
-		RTC_SetCounter(RTC_GetRTC_Counter(&RTC_DateTime));
+		SetStartRTCDate(27, 02, 2020, 13, 52, 50);
 	}
 	
-	RTC_Counter = RTC_GetCounter();
-	RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
-	GetCurrentLogFile(&RTC_DateTime);
+	DetectCurrentLogFile(RTC_Counter);
 	
 	while(1)
 	{
 		RTC_Counter = RTC_GetCounter();
-		
 		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
 		
-		sprintf(buffer, "%02d.%02d.%04d", RTC_DateTime.RTC_Date, RTC_DateTime.RTC_Month, RTC_DateTime.RTC_Year);
-		sprintf(timeBuffer, "%02d:%02d:%02d", RTC_DateTime.RTC_Hours, RTC_DateTime.RTC_Minutes, RTC_DateTime.RTC_Seconds);
+		OutputDateAtDisplay();
+		//OutputADCDataAtDisplay();
+				
+		SendSensorDataToSDCard(ADCBuffer, &RTC_DateTime);
 		
-		Display_Print(buffer, 3, 0);
-		Display_Print(timeBuffer, 4, 1);	
-		
-//		sprintf(firstValueADC, "Ia=%04d  Ib=%04d", ADCBuffer[0], ADCBuffer[1]);//TODO: create function - OutputDataOnDisplay
-//		sprintf(secondValueADC, "Ic=%04d  Id=%04d", ADCBuffer[2], ADCBuffer[3]);
-//			
-//		Display_Print(firstValueADC, 0, 0);
-//		Display_Print(secondValueADC, 0, 1);
-		
-		SendSensorData(ADCBuffer, &RTC_DateTime);
 		IWDG->KR=0xAAAA; // перезагрузка
+		
 		BlinkLeds();
 				
 		while (RTC_Counter == RTC_GetCounter()) 
-		{
-			
+		{ 
+		
 		}
 	}
 }

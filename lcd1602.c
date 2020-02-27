@@ -1,10 +1,8 @@
-#include "stm32f10x.h"
-#include "stm32f10x_rcc.h"
 #include "lcd1602.h"
 
 uint8_t LCD_ADDR = 0x3F;
 
-void I2CInit(void) 
+void I2CInitialization(void) 
 {
 	I2C_InitTypeDef  I2C_InitStructure;
 	GPIO_InitTypeDef  GPIO_InitStructure;
@@ -12,51 +10,47 @@ void I2CInit(void)
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
 
-	/* Configure I2C_EE pins: SCL and SDA */
 	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_6 | GPIO_Pin_7;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-	/* I2C configuration */
 	I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
 	I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
 	I2C_InitStructure.I2C_OwnAddress1 = 0x15;
 	I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
 	I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
 	I2C_InitStructure.I2C_ClockSpeed = 400000;
-	/* I2C Peripheral Enable */
 
 	I2C_Cmd(I2C1, ENABLE);
 	I2C_Init(I2C1, &I2C_InitStructure);
 }
 
-void lcd_init (void)
+void LCDInitialization (void)
 {
 	delay_ms(50);  // wait for >40ms
-	lcd_send_cmd (0x30);
+	SendCommandToLCD(0x30);
 	delay_ms(5);  // wait for >4.1ms
-	lcd_send_cmd (0x30);
+	SendCommandToLCD(0x30);
 	delay_ms(1);  // wait for >100us
-	lcd_send_cmd (0x30);
+	SendCommandToLCD(0x30);
 	delay_ms(10);
-	lcd_send_cmd (0x20);  // 4bit mode
+	SendCommandToLCD(0x20);  // 4bit mode
 	delay_ms(10);
 
-  // dislay initialisation
-	lcd_send_cmd (0x28); // Function set --> DL=0 (4 bit mode), N = 1 (2 line display) F = 0 (5x8 characters)
+	SendCommandToLCD(0x28); // Function set --> DL=0 (4 bit mode), N = 1 (2 line display) F = 0 (5x8 characters)
 	delay_ms(1);
-	lcd_send_cmd (0x08); //Display on/off control --> D=0,C=0, B=0  ---> display off
+	SendCommandToLCD(0x08); //Display on/off control --> D=0,C=0, B=0  ---> display off
 	delay_ms(1);
-	lcd_send_cmd (0x01);  // clear display
+	SendCommandToLCD(0x01);  // clear display
 	delay_ms(1);
 	delay_ms(1);
-	lcd_send_cmd (0x06); //Entry mode set --> I/D = 1 (increment cursor) & S = 0 (no shift)
+	SendCommandToLCD(0x06); //Entry mode set --> I/D = 1 (increment cursor) & S = 0 (no shift)
 	delay_ms(1);
-	lcd_send_cmd (0x0C); //Display on/off control --> D = 1, C and B = 0. (Cursor and blink, last two bits)
+	SendCommandToLCD(0x0C); //Display on/off control --> D = 1, C and B = 0. (Cursor and blink, last two bits)
 }
 
-void lcd_send_cmd (char cmd)
+void SendCommandToLCD(char cmd)
 {
 	char data_u, data_l;
 	uint8_t data_t[4];
@@ -69,7 +63,6 @@ void lcd_send_cmd (char cmd)
 	data_t[2] = data_l | 0x0C;  //en=1, rs=0
 	data_t[3] = data_l | 0x08;  //en=0, rs=0
 	
-
 	I2C_GenerateSTART(I2C1, ENABLE);
 	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
 	
@@ -86,7 +79,7 @@ void lcd_send_cmd (char cmd)
 	while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 }
 
-void lcd_send_data (char data)
+void SendDataToLCD (char data)
 {
 	char data_u, data_l;
 	uint8_t data_t[4];
@@ -115,38 +108,18 @@ void lcd_send_data (char data)
 
 }
 
-void Display_SetXY(uint8_t x, uint8_t y) {
+void SetXYCoordinatsToLCD(uint8_t x, uint8_t y) {
 	uint8_t addr = x + (y * 0x40);
-	lcd_send_cmd(0x80 | addr);
+	SendCommandToLCD(0x80 | addr);
 }
 
-void lcd_send_string (char *str)
+void SendStringToLCD(char *str)
 {
-	while (*str) lcd_send_data (*str++);
+	while(*str) SendDataToLCD(*str++);
 }
 
-void Display_Print(char * string, uint8_t x, uint8_t y) {
-	Display_SetXY(x,y);
-	lcd_send_string(string);
+void PrintDataOnLCD(char * string, uint8_t x, uint8_t y) {
+	SetXYCoordinatsToLCD(x,y);
+	SendStringToLCD(string);
 }
 
-//void I2C1_ER_IRQHandler(void)
-//{
-//	I2C_ClearITPendingBit(I2C1, I2C_IT_ERR);
-//	
-////	switch(I2C_GetLastEvent(I2C1))
-////    {
-////		case I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED :
-////			break;
-////		case I2C_EVENT_MASTER_BYTE_TRANSMITTED:
-////			break;
-////		case I2C_EVENT_MASTER_BYTE_TRANSMITTING:
-////			break;
-////		case I2C_EVENT_MASTER_MODE_SELECT:
-////			break;
-////    default:
-//		//I2C_Send7bitAddress(I2C1, LCD_ADDR << 1, I2C_Direction_Transmitter);	
-//		lcd_init();
-////        break;
-////    }
-//}

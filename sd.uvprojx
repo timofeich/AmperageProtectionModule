@@ -499,6 +499,21 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>DMAWithADC</GroupName>
+          <Files>
+            <File>
+              <FileName>DmaWithAdc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\DmaWithAdc.c</FilePath>
+            </File>
+            <File>
+              <FileName>DmaWithAdc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\DmaWithAdc.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
         <Group>
