@@ -5,11 +5,9 @@
 #include "lcd1602.h"
 #include "rtc.h"
 #include "sdcard.h"
-//#include "adc.h"
 #include "led.h"
 
 RTC_DateTimeTypeDef RTC_DateTime;
-
 uint16_t ADCBuffer[] = {0x0000, 0x0000, 0x0000, 0x0000};
 
 void ADC1_Configure(void)
@@ -96,12 +94,12 @@ int main(void)
 		
 	//Init_IWDG(7000);
 	
-//	I2CInit();	
-//	lcd_init();
+	I2CInit();	
+	lcd_init();
 	
 	DMAInit_ADCRecieve();
+	GetCurrentLogFile();
 
-	//CreateHomeDirectory();
 	if(RTC_Init() == 1)
 	{
 		RTC_DateTime.RTC_Date = 30;//TODO; create function - SetStartRTCData()  
@@ -122,11 +120,11 @@ int main(void)
 		
 		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
 		
-//		sprintf(buffer, "%02d.%02d.%04d", RTC_DateTime.RTC_Date, RTC_DateTime.RTC_Month, RTC_DateTime.RTC_Year);
-//		sprintf(timeBuffer, "%02d:%02d:%02d", RTC_DateTime.RTC_Hours, RTC_DateTime.RTC_Minutes, RTC_DateTime.RTC_Seconds);
-//		
-//		Display_Print(buffer, 3, 0);
-//		Display_Print(timeBuffer, 4, 1);	
+		sprintf(buffer, "%02d.%02d.%04d", RTC_DateTime.RTC_Date, RTC_DateTime.RTC_Month, RTC_DateTime.RTC_Year);
+		sprintf(timeBuffer, "%02d:%02d:%02d", RTC_DateTime.RTC_Hours, RTC_DateTime.RTC_Minutes, RTC_DateTime.RTC_Seconds);
+		
+		Display_Print(buffer, 3, 0);
+		Display_Print(timeBuffer, 4, 1);	
 		
 //		sprintf(firstValueADC, "Ia=%04d  Ib=%04d", ADCBuffer[0], ADCBuffer[1]);//TODO: create function - OutputDataOnDisplay
 //		sprintf(secondValueADC, "Ic=%04d  Id=%04d", ADCBuffer[2], ADCBuffer[3]);
@@ -134,12 +132,9 @@ int main(void)
 //		Display_Print(firstValueADC, 0, 0);
 //		Display_Print(secondValueADC, 0, 1);
 		
-		//SendSensorData(ADCBuffer, RTC_DateTime.RTC_Hours, RTC_DateTime.RTC_Minutes, RTC_DateTime.RTC_Seconds);
-		//test_SD_2();
-		BlinkLeds();
-		
 		SendSensorData(ADCBuffer, RTC_DateTime.RTC_Hours, RTC_DateTime.RTC_Minutes, RTC_DateTime.RTC_Seconds);
-		
+		BlinkLeds();
+				
 		while (RTC_Counter == RTC_GetCounter()) 
 		{
 			

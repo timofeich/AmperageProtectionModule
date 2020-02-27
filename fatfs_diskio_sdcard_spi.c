@@ -66,7 +66,7 @@ static void spi_set_speed(enum sd_speed speed);
 #define GPIO_Pin_SPI_SD_MOSI     GPIO_Pin_7
 #define RCC_APBPeriphClockCmd_SPI_SD  RCC_APB2PeriphClockCmd
 #define RCC_APBPeriph_SPI_SD     RCC_APB2Periph_SPI1
-#define SPI_BaudRatePrescaler_SPI_SD  SPI_BaudRatePrescaler_256
+#define SPI_BaudRatePrescaler_SPI_SD  SPI_BaudRatePrescaler_4
 
 
 static void spi_init(void)
@@ -1028,15 +1028,15 @@ DRESULT disk_ioctl(BYTE drv, BYTE ctrl, void *buff)
 }
 
 
-typedef struct
-{
-	DWORD sec: 	5;	
-	DWORD	min:	6;	
-	DWORD	hour:	5;	
-	DWORD	day:	5;	
-	DWORD	month:4;	
-	DWORD	year:	7;	
-} fat_time_t;
+//typedef struct
+//{
+//	DWORD sec: 	5;	
+//	DWORD	min:	6;	
+//	DWORD	hour:	5;	
+//	DWORD	day:	5;	
+//	DWORD	month:4;	
+//	DWORD	year:	7;	
+//} fat_time_t;
 
 //DWORD get_fattime(void)
 //{

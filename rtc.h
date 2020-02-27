@@ -1,3 +1,5 @@
+#include "integer.h"
+
 typedef struct
 {
 	uint8_t RTC_Hours;
@@ -13,6 +15,6 @@ void SetSysClockToHSE(void);
 uint8_t RTC_Init(void);
 void RTC_GetDateTime(uint32_t RTC_Counter, RTC_DateTimeTypeDef* RTC_DateTimeStruct);
 uint32_t RTC_GetRTC_Counter(RTC_DateTimeTypeDef* RTC_DateTimeStruct);
-
+DWORD get_fattime(void);
 
 

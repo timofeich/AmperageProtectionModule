@@ -402,16 +402,6 @@
               <FilePath>.\fatfs_diskio_sdcard_spi.c</FilePath>
             </File>
             <File>
-              <FileName>fattime.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\fattime.c</FilePath>
-            </File>
-            <File>
-              <FileName>fattime.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\fattime.h</FilePath>
-            </File>
-            <File>
               <FileName>ff.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\ff.c</FilePath>

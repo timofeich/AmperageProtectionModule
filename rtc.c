@@ -1,6 +1,14 @@
 #include "stm32f10x_conf.h"
 #include "rtc.h"
 
+int year = 0;
+int mon = 0;
+int wday = 0;
+int mday = 0;
+int hour = 0;
+int min = 0;
+int sec = 0;
+
 void SetSysClockToHSE(void)
 {
 	ErrorStatus HSEStartUpStatus;
@@ -61,13 +69,7 @@ void RTC_GetDateTime(uint32_t RTC_Counter, RTC_DateTimeTypeDef* RTC_DateTimeStru
 {
 	unsigned long time;
 	unsigned long t1, a, b, c, d, e, m;
-	int year = 0;
-	int mon = 0;
-	int wday = 0;
-	int mday = 0;
-	int hour = 0;
-	int min = 0;
-	int sec = 0;
+
 	uint64_t jd = 0;;
 	uint64_t jdn = 0;
 
@@ -105,6 +107,17 @@ void RTC_GetDateTime(uint32_t RTC_Counter, RTC_DateTimeTypeDef* RTC_DateTimeStru
 	RTC_DateTimeStruct -> RTC_Minutes = min;
 	RTC_DateTimeStruct -> RTC_Seconds = sec;
 	RTC_DateTimeStruct -> RTC_Wday = wday;
+}
+
+
+
+DWORD get_fattime (void) {
+	return	  ((DWORD)(year - 1980) << 25)	
+			| ((DWORD)mon << 21)			
+			| ((DWORD)mday << 16)			
+			| ((DWORD)hour << 11)			
+			| ((DWORD)min << 5)			
+			| ((DWORD)sec >> 1);			
 }
 
 uint32_t RTC_GetRTC_Counter(RTC_DateTimeTypeDef* RTC_DateTimeStruct) 
