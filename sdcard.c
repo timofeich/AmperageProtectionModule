@@ -1,12 +1,14 @@
 #include "ff.h"
 #include "stm32f10x_conf.h"
+#include "rtc.h"
 
 volatile FRESULT result;
 static XCHAR CurrentLogFileName[17];
+static XCHAR CurrentLogDirectoryName[17];
 DWORD isSDCardEmpty, freeClusters;
 char	buff[1024];		
 
-void SendSensorData(uint16_t sensorData[4], uint8_t hours, uint8_t minutes, uint8_t seconds)
+void SendSensorData(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 {
 	DIR dir;
 	static FATFS FATFS_Obj;
@@ -14,11 +16,18 @@ void SendSensorData(uint16_t sensorData[4], uint8_t hours, uint8_t minutes, uint
       static FILINFO fileInfo;
 	char filename[255];
 	
+	uint8_t hours = RTC_DateTimeStruct -> RTC_Hours;
+	uint8_t minutes = RTC_DateTimeStruct -> RTC_Minutes;
+	uint8_t seconds = RTC_DateTimeStruct -> RTC_Seconds;
+		
+
+	
 	result = f_mount(0, &FATFS_Obj);
 
 	if (result == FR_OK)
 	{
 
+		
 		result = f_open(&file, CurrentLogFileName, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
 		f_puts("Time of record \t Ia(A) \t Ib(A) \t Ic(A) \t U(V)\r\n", &file);
 		
@@ -54,7 +63,7 @@ void SendSensorData(uint16_t sensorData[4], uint8_t hours, uint8_t minutes, uint
 	f_mount(0, 0);
 }
 
-void GetCurrentLogFile(void)
+void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 {
 	static DIR dir;
 	static FATFS FATFS_Obj;
@@ -65,11 +74,14 @@ void GetCurrentLogFile(void)
 	fileInfo.lfname = lfname;
 	fileInfo.lfsize = _MAX_LFN - 1; 
 	
+	sprintf(CurrentLogDirectoryName, "Log_%02d.%02d.%04d",  RTC_DateTimeStruct -> RTC_Date,  
+		RTC_DateTimeStruct -> RTC_Month,  RTC_DateTimeStruct -> RTC_Year);
+	
 	result = f_mount(0, &FATFS_Obj);
 	if (result == FR_OK)
 	{
-		result = f_mkdir("123");
-		result = f_opendir(&dir, "0:123");
+		result = f_mkdir(CurrentLogDirectoryName);
+		result = f_opendir(&dir, CurrentLogDirectoryName);
 
 		for(;;)
 		{

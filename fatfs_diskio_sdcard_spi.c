@@ -1028,35 +1028,6 @@ DRESULT disk_ioctl(BYTE drv, BYTE ctrl, void *buff)
 }
 
 
-//typedef struct
-//{
-//	DWORD sec: 	5;	
-//	DWORD	min:	6;	
-//	DWORD	hour:	5;	
-//	DWORD	day:	5;	
-//	DWORD	month:4;	
-//	DWORD	year:	7;	
-//} fat_time_t;
-
-//DWORD get_fattime(void)
-//{
-//	union
-//	{
-//		fat_time_t fat_time;
-//		DWORD dword;
-//	} time;
-
-//	time.fat_time.sec = 0;
-//	time.fat_time.min = 0;
-//	time.fat_time.hour = 12;
-//	time.fat_time.day = 4;
-//	time.fat_time.month = 9;
-//	time.fat_time.year = 2013-1980;
-
-//	return time.dword;
-
-//}
-
 WCHAR ff_convert (	/* Converted character, Returns zero on error */
 	WCHAR	src,	/* Character code to be converted */
 	UINT	dir		/* 0: Unicode to OEMCP, 1: OEMCP to Unicode */
