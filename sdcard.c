@@ -1,10 +1,15 @@
 #include "sdcard.h"
 
 volatile FRESULT result;
+
 static XCHAR CurrentLogFileName[17];
 static XCHAR CurrentLogDirectoryName[17];
 static XCHAR CurrentLogPath[35];
+
+DWORD fre_clust, fre_sect, tot_sect;
+
 DWORD isSDCardEmpty, freeClusters;
+
 char	buff[1024];		
 
 void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_DateTimeStruct)
@@ -26,8 +31,11 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 		sprintf(CurrentLogDirectoryName, "Log_%02d.%02d.%04d",  RTC_DateTimeStruct -> RTC_Date,  
 		RTC_DateTimeStruct -> RTC_Month,  RTC_DateTimeStruct -> RTC_Year);
 		result = f_mkdir(CurrentLogDirectoryName);
-		result = f_opendir(&dir, CurrentLogDirectoryName);
-		sprintf(CurrentLogPath, "0:/%s/%s", CurrentLogDirectoryName, CurrentLogFileName);
+		if(result == 0)
+		{
+				sprintf(CurrentLogFileName, "Log_%02d-%02d-%02d.txt", hours, minutes, seconds);
+				sprintf(CurrentLogPath, "0:/%s/%s", CurrentLogDirectoryName, CurrentLogFileName);
+		}
 		
 		result = f_open(&file, CurrentLogPath, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
 		f_puts("Time of record \t Ia(A) \t Ib(A) \t Ic(A) \t U(V)\r\n", &file);
@@ -69,21 +77,25 @@ void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 {
 	static DIR dir;
 	static FATFS FATFS_Obj;
+	FATFS *fs;
       static FILINFO fileInfo;
 	static XCHAR lfname[_MAX_LFN];
+	 DWORD fre_clust;
 	
 	fileInfo.lfname = lfname;
 	fileInfo.lfsize = _MAX_LFN - 1; 
 	
 	sprintf(CurrentLogDirectoryName, "Log_%02d.%02d.%04d",  RTC_DateTimeStruct -> RTC_Date,  
 		RTC_DateTimeStruct -> RTC_Month,  RTC_DateTimeStruct -> RTC_Year);
-	
+		
 	result = f_mount(0, &FATFS_Obj);
+	
+	//result = f_unlink("0:/Log_01.03.2020");
 	if (result == FR_OK)
 	{
 		result = f_mkdir(CurrentLogDirectoryName);
 		result = f_opendir(&dir, CurrentLogDirectoryName);
-		if(result)
+		if(result == FR_OK)
 		{
 			for(;;)
 			{
@@ -96,9 +108,19 @@ void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 					
 			if(fileInfo.fname[0] == 0)
 			{
-				isSDCardEmpty = FATFS_Obj.csize * ((FATFS_Obj.max_clust - 2) - FATFS_Obj.free_clust);
+
+				result = f_getfree("/", &fre_clust, &fs);
+				if(result == FR_OK)
+				{
+					fre_sect = fre_clust * fs->csize / 2;
+				}				
 			}
 		}		
 	}
 	result = f_mount(0, 0);
+}
+
+void EraseSdCard(void)
+{
+
 }

@@ -110,13 +110,22 @@ void RTC_GetDateTime(uint32_t RTC_Counter, RTC_DateTimeTypeDef* RTC_DateTimeStru
 
 
 
+//DWORD get_fattime (void) {
+//	return	  ((DWORD)(year - 1980) << 25)	
+//			| ((DWORD)mon << 21)			
+//			| ((DWORD)mday << 16)			
+//			| ((DWORD)hour << 11)			
+//			| ((DWORD)min << 5)			
+//			| ((DWORD)sec >> 1);			
+//}
+
 DWORD get_fattime (void) {
-	return	  ((DWORD)(year - 1980) << 25)	
-			| ((DWORD)mon << 21)			
-			| ((DWORD)mday << 16)			
-			| ((DWORD)hour << 11)			
-			| ((DWORD)min << 5)			
-			| ((DWORD)sec >> 1);			
+	return	  ((DWORD)(2014 - 1980) << 25)	
+			| ((DWORD)7 << 21)			
+			| ((DWORD)10 << 16)			
+			| ((DWORD)16 << 11)			
+			| ((DWORD)0 << 5)			
+			| ((DWORD)0 >> 1);			
 }
 
 uint32_t RTC_GetRTC_Counter(RTC_DateTimeTypeDef* RTC_DateTimeStruct) 

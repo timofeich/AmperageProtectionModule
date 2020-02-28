@@ -9,7 +9,9 @@
 #include "DmaWithAdc.h"
 
 // TODO: 1) If flash is full -> ?
-//	   2) Check current module working
+//		- если места < 5000, то находим первую папку и удалить все папки и папку
+//		- как расперделяются папки в флешке?
+
 
 RTC_DateTimeTypeDef RTC_DateTime;
 uint16_t ADCBuffer[4] = {0x0000, 0x0000, 0x0000, 0x0000};
@@ -69,9 +71,7 @@ int main(void)
 	LEDsInitialization();
 	SetSysClockToHSE();
 	Timer2Initialization();
-		
-	IWDGInitialization(2000);
-	
+			
 	I2CInitialization();	
 	LCDInitialization();
 	
@@ -79,10 +79,11 @@ int main(void)
 	
 	if(RTC_Init() == 1)
 	{
-		SetStartRTCDate(27, 02, 2020, 13, 52, 50);
+		SetStartRTCDate(01, 03, 2020, 23, 58, 00);
 	}
 	
 	DetectCurrentLogFile(RTC_Counter);
+	IWDGInitialization(2000);
 	
 	while(1)
 	{
@@ -94,7 +95,7 @@ int main(void)
 				
 		SendSensorDataToSDCard(ADCBuffer, &RTC_DateTime);
 		
-		IWDG->KR=0xAAAA; // перезагрузка
+		IWDG -> KR = 0xAAAA; // перезагрузка
 		
 		BlinkLeds();
 				
