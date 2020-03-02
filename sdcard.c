@@ -8,8 +8,6 @@ static XCHAR CurrentLogPath[35];
 
 DWORD fre_clust, fre_sect, tot_sect;
 
-DWORD isSDCardEmpty, freeClusters;
-
 char	buff[1024];		
 
 void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_DateTimeStruct)
@@ -73,6 +71,37 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 	f_mount(0, 0);
 }
 
+void EraseSdCard(DIR directory, FILINFO fileInforamtion)
+{
+	XCHAR LogFileName[17];
+	XCHAR DirectoryName[17];
+	XCHAR LogPath[35];
+	
+	result = f_opendir(&directory, "/");
+	
+	result = f_readdir(&directory, &fileInforamtion);
+	
+	while((result == FR_OK) && (fileInforamtion.fname[0] != 'L'))
+	{
+		result = f_readdir(&directory, &fileInforamtion);	
+	}
+	
+	sprintf(DirectoryName, fileInforamtion.lfname);
+	result = f_opendir(&directory, DirectoryName);
+	
+	for(;;)
+	{
+		result = f_readdir(&directory, &fileInforamtion);
+		if ((result != FR_OK) || (fileInforamtion.fname[0] == 0))
+		break;
+		
+		sprintf(LogFileName, fileInforamtion.lfname);
+		sprintf(LogPath, "0:/%s/%s", DirectoryName, LogFileName);
+		result = f_unlink(LogPath);
+	}	
+	result = f_unlink(DirectoryName);					
+}
+
 void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 {
 	static DIR dir;
@@ -90,7 +119,6 @@ void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 		
 	result = f_mount(0, &FATFS_Obj);
 	
-	//result = f_unlink("0:/Log_01.03.2020");
 	if (result == FR_OK)
 	{
 		result = f_mkdir(CurrentLogDirectoryName);
@@ -113,6 +141,10 @@ void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 				if(result == FR_OK)
 				{
 					fre_sect = fre_clust * fs->csize / 2;
+					if(fre_sect < 5000)
+					{
+						EraseSdCard(dir, fileInfo);
+					}
 				}				
 			}
 		}		
@@ -120,7 +152,5 @@ void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 	result = f_mount(0, 0);
 }
 
-void EraseSdCard(void)
-{
 
-}
+
