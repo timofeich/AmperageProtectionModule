@@ -2,18 +2,16 @@
 
 volatile uint8_t f_timer_2_end;
 
-void IWDGInitialization(u16 tw) // ѕараметр tw от 7мс до 26200мс
+void IWDGInitialization(u16 tw) 
 {
-	// включаем LSI
 	RCC_LSICmd(ENABLE);
-	while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET); // ƒл¤ IWDG_PR=7 Tmin=6,4мс RLR=Tмс*40/256
-	IWDG -> KR = 0x5555; //  люч дл¤ доступа к таймеру
-	IWDG -> PR = 7; // ќбновление IWDG_PR
-	IWDG -> RLR = tw * 40 / 256; // «агрузить регистр перезагрузки
-	IWDG -> KR = 0xAAAA; // ѕерезагрузка
-	IWDG -> KR = 0xCCCC; // ѕуск таймера
+	while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET);
+	IWDG -> KR = 0x5555;
+	IWDG -> PR = 7; 
+	IWDG -> RLR = tw * 40 / 256; 
+	IWDG -> KR = 0xAAAA; 
+	IWDG -> KR = 0xCCCC; 
 }
-
 
 void Timer2Initialization(void)
 {

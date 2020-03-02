@@ -8,14 +8,8 @@
 #include "led.h"
 #include "DmaWithAdc.h"
 
-// TODO: 1) If flash is full -> ?
-//		- если места < 5000, то находим первую папку и удалить все файлы и папку
-//		- как расперделяются папки в флешке?
-
-
 RTC_DateTimeTypeDef RTC_DateTime;
 uint16_t ADCBuffer[4] = {0x0000, 0x0000, 0x0000, 0x0000};
-
 
 void OutputDateAtDisplay(void)
 {
@@ -79,7 +73,7 @@ int main(void)
 	
 	if(RTC_Init() == 1)
 	{
-		SetStartRTCDate(01, 03, 2020, 23, 58, 00);
+		SetStartRTCDate(02, 03, 2020, 12, 35, 30);
 	}
 	
 	DetectCurrentLogFile(RTC_Counter);

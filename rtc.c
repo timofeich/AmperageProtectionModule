@@ -108,8 +108,6 @@ void RTC_GetDateTime(uint32_t RTC_Counter, RTC_DateTimeTypeDef* RTC_DateTimeStru
 	RTC_DateTimeStruct -> RTC_Wday = wday;
 }
 
-
-
 DWORD get_fattime (void) {
 	return	  ((DWORD)(year - 1980) << 25)	
 			| ((DWORD)mon << 21)			
