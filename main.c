@@ -11,6 +11,12 @@
 RTC_DateTimeTypeDef RTC_DateTime;
 uint16_t ADCBuffer[4] = {0x0000, 0x0000, 0x0000, 0x0000};
 
+//TODO:
+//1) почему папка 1970 создалась(из-за перебивки времени?)
+//2) протестить работу sd модуля(вкл. выкл. батарейка и остальные приколы)
+//3) если к раб плате подключить sd card будет ли работать?(должно работать)
+//4) работа карты при полном заполнении
+
 void OutputDateAtDisplay(void)
 {
 	char buffer[20];
@@ -50,7 +56,6 @@ void SetStartRTCDate(uint8_t day, uint8_t month, uint16_t year,
 	RTC_SetCounter(RTC_GetRTC_Counter(&RTC_DateTime));
 }	
 
-
 void DetectCurrentLogFile(uint32_t RTC_Counter)
 {
 	RTC_Counter = RTC_GetCounter();
@@ -65,7 +70,9 @@ int main(void)
 	LEDsInitialization();
 	SetSysClockToHSE();
 	Timer2Initialization();
-			
+	
+	IWDGInitialization(2000);
+	
 	I2CInitialization();	
 	LCDInitialization();
 	
@@ -73,12 +80,11 @@ int main(void)
 	
 	if(RTC_Init() == 1)
 	{
-		SetStartRTCDate(02, 03, 2020, 12, 35, 30);
+		SetStartRTCDate(02, 03, 2020, 14, 47, 30);
 	}
 	
 	DetectCurrentLogFile(RTC_Counter);
-	IWDGInitialization(2000);
-	
+
 	while(1)
 	{
 		RTC_Counter = RTC_GetCounter();

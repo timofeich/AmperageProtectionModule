@@ -13,16 +13,13 @@ uint8_t IsSdCardFull(FATFS *fs)
 	{
 		fre_Sectors = fre_Clusters * fs->csize / 2;
 		
-		if(fre_Sectors < MINIMAL_FREE_SPACE_ON_SD_CARD)
+		if(fre_Sectors < MINIMUM_FREE_SPACE_ON_SD_CARD)
 		{
 			return 0;
 		}
 		else return 1;
 	}
-	else	
-	{
-		return 1;
-	}
+	else	return 1;
 }
 
 uint8_t CreateTodayDateDirectory(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
@@ -143,6 +140,11 @@ void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 			
 	if (f_mount(0, &FATFS_Obj) == FR_OK)
 	{
+		if(IsSdCardFull(fs) == 0)
+		{
+			DeleteFirstDirectory(&dir, &fileInfo);
+		}	
+		
 		CreateTodayDateDirectory(RTC_DateTimeStruct);
 		if(f_opendir(&dir, CurrentLogDirectoryName) == FR_OK)
 		{
@@ -155,12 +157,7 @@ void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 				
 				sprintf(CurrentLogFileName, fileInfo.lfname);
 				sprintf(CurrentLogPath, "0:/%s/%s", CurrentLogDirectoryName, CurrentLogFileName);
-			}	
-					
-			if(IsSdCardFull(fs) == 0)
-			{
-				DeleteFirstDirectory(&dir, &fileInfo);
-			}						
+			}					
 		}		
 	}	
 	f_mount(0, 0);
