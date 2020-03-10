@@ -411,7 +411,6 @@ typedef enum {
 } FRESULT;
 
 
-
 /*--------------------------------------------------------------*/
 /* FatFs module application interface                           */
 

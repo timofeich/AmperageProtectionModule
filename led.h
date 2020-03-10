@@ -4,6 +4,7 @@
 #include "stm32f10x_conf.h"
 
 void LEDsInitialization(void);
-void BlinkLeds(void);
+void BlinkGreenLed(void);
+void BlinkBlueLed(void);
 
 #endif //LED_LED_H_

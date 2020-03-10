@@ -10,7 +10,12 @@ void LEDsInitialization(void)
 	GPIO_Init(GPIOC , &GPIO_InitStructure);
 }
 
-void BlinkLeds(void)
+void BlinkGreenLed(void)
 {	
-	GPIOC->ODR ^= (GPIO_Pin_9 | GPIO_Pin_8);
+	GPIOC->ODR ^= (GPIO_Pin_9);
+}
+
+void BlinkBlueLed(void)
+{
+	GPIOC->ODR ^= (GPIO_Pin_8);
 }

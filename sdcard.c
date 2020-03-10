@@ -6,35 +6,68 @@ static XCHAR CurrentLogFileName[17];
 static XCHAR CurrentLogDirectoryName[17];
 static XCHAR CurrentLogPath[35];
 
+// 1) возникновение папки 1970
+// 3) удаление
+
 DWORD fre_clust, fre_sect, tot_sect;
 
 char	buff[1024];		
 
-void EraseSdCard(DIR directory, FILINFO fileInforamtion)
+char StatusOfSdCard[][25] = 
 {
+	"OK              ",
+	"SD card error   ", //FR_DISK_ERR
+	"Filesystem error", //FR_INT_ERR
+	"SD is not ready ", //FR_NOT_READY
+	"No file in a dir", //FR_NO_FILE
+	"No such path    ",	//FR_NO_PATH
+	"Invalid filepath",	//FR_INVALID_NAME
+	"Access denied   ",	//FR_DENIED
+	"File already exist",	//FR_EXIST
+	"Invalid file object",	//FR_INVALID_OBJECT
+	"Write protection",	//FR_WRITE_PROTECTED
+	"Invalid drive number",	//FR_INVALID_DRIVE
+	"Logical drive not enabled",	//FR_NOT_ENABLED
+	"No filesystem   ",	//FR_NO_FILESYSTEM
+	"Volume too small",	//FR_MKFS_ABORTED
+	"Timeout    error",	//FR_TIMEOUT
+}; 
+
+void OutputSdCardStatusOnLCD(FRESULT status)
+{
+	PrintDataOnLCD(StatusOfSdCard[status], 0, 0);
+}
+
+void EraseSdCard(void)
+{
+	static DIR dir;
+	static FILINFO fileInfo;
+	static XCHAR lfname[_MAX_LFN];
+	
 	XCHAR LogFileName[17];
 	XCHAR DirectoryName[17];
 	XCHAR LogPath[35];
 	
-	result = f_opendir(&directory, "/");
+	fileInfo.lfname = lfname;
+	fileInfo.lfsize = _MAX_LFN - 1; 
 	
-	result = f_readdir(&directory, &fileInforamtion);
+	result = f_opendir(&dir, "/");
 	
-	while((result == FR_OK) && (fileInforamtion.fname[0] != 'L'))
+	while((result == FR_OK) && (fileInfo.fname[0] != 'L'))
 	{
-		result = f_readdir(&directory, &fileInforamtion);	
+		result = f_readdir(&dir, &fileInfo);	
 	}
 	
-	sprintf(DirectoryName, fileInforamtion.lfname);
-	result = f_opendir(&directory, DirectoryName);
+	sprintf(DirectoryName, fileInfo.lfname);
+	result = f_opendir(&dir, DirectoryName);
 	
 	for(;;)
 	{
-		result = f_readdir(&directory, &fileInforamtion);
-		if ((result != FR_OK) || (fileInforamtion.fname[0] == 0))
+		result = f_readdir(&dir, &fileInfo);
+		if ((result != FR_OK) || (fileInfo.fname[0] == 0))
 		break;
 		
-		sprintf(LogFileName, fileInforamtion.lfname);
+		sprintf(LogFileName, fileInfo.lfname);
 		sprintf(LogPath, "0:/%s/%s", DirectoryName, LogFileName);
 		result = f_unlink(LogPath);
 	}	
@@ -43,11 +76,10 @@ void EraseSdCard(DIR directory, FILINFO fileInforamtion)
 
 void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 {
-	DIR dir;
 	static FATFS FATFS_Obj;
 	static FIL file;
 	FATFS *fs;
-      static FILINFO fileInfo;
+
 	char filename[255];
 	
 	uint8_t hours = RTC_DateTimeStruct -> RTC_Hours;
@@ -60,60 +92,69 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 	{	
 		result = f_getfree("/", &fre_clust, &fs);
 		if(result == FR_OK)
-		{
-			fre_sect = fre_clust * fs->csize / 2;
-			if(fre_sect < 5000)
-			{
-				EraseSdCard(dir, fileInfo);
-			}
-		}	
-		
-		sprintf(CurrentLogDirectoryName, "Log_%02d.%02d.%04d",  RTC_DateTimeStruct -> RTC_Date,  
-		RTC_DateTimeStruct -> RTC_Month,  RTC_DateTimeStruct -> RTC_Year);
-		result = f_mkdir(CurrentLogDirectoryName);
-		if(result == 0)
-		{
-				sprintf(CurrentLogFileName, "Log_%02d-%02d-%02d.txt", hours, minutes, seconds);
-				sprintf(CurrentLogPath, "0:/%s/%s", CurrentLogDirectoryName, CurrentLogFileName);
-		}
-		
-		result = f_open(&file, CurrentLogPath, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
-		f_puts("Time of record \t Ia(A) \t Ib(A) \t Ic(A) \t U(V)\r\n", &file);
-		
-		if(file.fsize < 5000000 && CurrentLogFileName[0] != 0)//&& isSDCardEmpty != 0
-		{	
-			result = f_lseek(&file, file.fsize); 
-				
-			for(int i = 0; i < 50; i++)
-			{
-				f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d\r\n", hours, minutes, seconds, i * 20,
-					sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
-			}
-		}
-		else 
 		{			
-			sprintf(CurrentLogFileName, "Log_%02d-%02d-%02d.txt", hours, minutes, seconds);
-			sprintf(CurrentLogPath, "0:/%s/%s", CurrentLogDirectoryName, CurrentLogFileName);
+			fre_sect = fre_clust * fs->csize / 2;
+			if(fre_sect < MINIMUM_FREE_SPACE_ON_SD_CARD)
+			{
+				EraseSdCard();
+			}
+			
+			sprintf(CurrentLogDirectoryName, "Log_%02d.%02d.%04d",  RTC_DateTimeStruct -> RTC_Date,  
+			RTC_DateTimeStruct -> RTC_Month,  RTC_DateTimeStruct -> RTC_Year);
+			result = f_mkdir(CurrentLogDirectoryName);
+			if(result == 0)
+			{
+					sprintf(CurrentLogFileName, "Log_%02d-%02d-%02d.txt", hours, minutes, seconds);
+					sprintf(CurrentLogPath, "0:/%s/%s", CurrentLogDirectoryName, CurrentLogFileName);
+			}
 			
 			result = f_open(&file, CurrentLogPath, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
-			f_puts("Time of record \t Ia(A) \t Ib(A) \t Ic(A) \t U(V)\r\n", &file);	
+			f_puts("Time of record \t Ia(A) \t Ib(A) \t Ic(A) \t U(V)\n", &file);
 			
-			result = f_lseek(&file, file.fsize); 
+			if(file.fsize < MAXIMUM_FILE_SIZE && CurrentLogFileName[0] != 0)
+			{	
+				result = f_lseek(&file, file.fsize); 
+					
+				for(int i = 0; i < 50; i++)
+				{
+					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d\n", hours, minutes, seconds, i * 20,
+						sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
+				}
 				
-			for(int i = 0; i < 50; i++)
-			{
-				f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d\r\n", hours, minutes, seconds, i * 20,
-					sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
-			}			
+				BlinkBlueLed();
+			}
+			else 
+			{			
+				sprintf(CurrentLogFileName, "Log_%02d-%02d-%02d.txt", hours, minutes, seconds);
+				sprintf(CurrentLogPath, "0:/%s/%s", CurrentLogDirectoryName, CurrentLogFileName);
+				
+				result = f_open(&file, CurrentLogPath, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
+				f_puts("Time of record \t Ia(A) \t Ib(A) \t Ic(A) \t U(V)\n", &file);	
+				
+				result = f_lseek(&file, file.fsize); 
+					
+				for(int i = 0; i < 50; i++)
+				{
+					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d\n", hours, minutes, seconds, i * 20,
+						sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
+				}
+				
+				BlinkBlueLed();				
+			}
+			f_close(&file);
+		}			
+		else
+		{
+			OutputSdCardStatusOnLCD(result);
 		}
-			
-		f_close(&file);
+	}
+	else
+	{
+		OutputSdCardStatusOnLCD(result);
 	}
 	
 	f_mount(0, 0);
 }
-
-
 
 void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 {
@@ -122,7 +163,7 @@ void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 	FATFS *fs;
       static FILINFO fileInfo;
 	static XCHAR lfname[_MAX_LFN];
-	 DWORD fre_clust;
+	DWORD fre_clust;
 	
 	fileInfo.lfname = lfname;
 	fileInfo.lfsize = _MAX_LFN - 1; 
@@ -146,20 +187,6 @@ void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 				sprintf(CurrentLogFileName, fileInfo.lfname);
 				sprintf(CurrentLogPath, "0:/%s/%s", CurrentLogDirectoryName, CurrentLogFileName);
 			}	
-					
-			if(fileInfo.fname[0] == 0)
-			{
-
-				result = f_getfree("/", &fre_clust, &fs);
-				if(result == FR_OK)
-				{
-					fre_sect = fre_clust * fs->csize / 2;
-					if(fre_sect < 5000)
-					{
-						EraseSdCard(dir, fileInfo);
-					}
-				}				
-			}
 		}		
 	}
 	result = f_mount(0, 0);
