@@ -185,12 +185,9 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 			if(file.fsize < MAXIMUM_FILE_SIZE && CurrentLogFileName[0] != 0)
 			{	
 				result = f_lseek(&file, file.fsize); 
-					
-				for(int i = 0; i < 50; i++)
-				{
-					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d\n", hours, minutes, seconds, i * 20,
-						sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
-				}
+									
+				f_printf(&file, "%02d:%02d:%02d \t %03d \t %03d \t %03d \t %03d\n", hours, minutes, seconds,
+					sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
 				
 				BlinkBlueLed();
 			}
@@ -204,12 +201,9 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 				
 				result = f_lseek(&file, file.fsize); 
 					
-				for(int i = 0; i < 50; i++)
-				{
-					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d\n", hours, minutes, seconds, i * 20,
-						sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
-				}
-				
+				f_printf(&file, "%02d:%02d:%02d \t %03d \t %03d \t %03d \t %03d\n", hours, minutes, seconds,
+					sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
+	
 				BlinkBlueLed();				
 			}
 			f_close(&file);
