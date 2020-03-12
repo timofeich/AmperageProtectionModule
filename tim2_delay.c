@@ -14,7 +14,6 @@ void IWDGInitialization(u16 tw) // ѕараметр tw от 7мс до 26200мс
 	IWDG -> KR = 0xCCCC; // ѕуск таймера
 }
 
-
 void Timer2Initialization(void)
 {
 	TIM_TimeBaseInitTypeDef TIMER_InitStructure;

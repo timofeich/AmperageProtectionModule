@@ -50,7 +50,6 @@ void SetStartRTCDate(uint8_t day, uint8_t month, uint16_t year,
 	RTC_SetCounter(RTC_GetRTC_Counter(&RTC_DateTime));
 }	
 
-
 void DetectCurrentLogFile(uint32_t RTC_Counter)
 {
 	RTC_Counter = RTC_GetCounter();
@@ -73,7 +72,7 @@ int main(void)
 	
 	if(RTC_Init() == 1)
 	{
-		SetStartRTCDate(8, 03, 2020, 9, 11, 00);
+		SetStartRTCDate(13, 03, 2020, 13, 33, 30);
 	}
 	
 	DetectCurrentLogFile(RTC_Counter);
@@ -84,8 +83,8 @@ int main(void)
 		RTC_Counter = RTC_GetCounter();
 		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
 		
-		//OutputDateAtDisplay();
-		OutputADCDataAtDisplay();
+		OutputDateAtDisplay();
+		//OutputADCDataAtDisplay();
 				
 		SendSensorDataToSDCard(ADCBuffer, &RTC_DateTime);
 		
