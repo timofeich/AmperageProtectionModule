@@ -12,6 +12,15 @@ void SetSysClockToHSE(void)
 {
 	ErrorStatus HSEStartUpStatus;
   
+//	RCC_DeInit(); //    сброс настроек тактового генератора
+//	RCC_HSICmd(DISABLE); // выключение внутреннего RC HSI 8МГц генератора
+//	
+//	RCC_HSEConfig(RCC_HSE_ON); //   включение внешнего тактового генератора
+//	RCC_PREDIV1Config(RCC_PREDIV1_Source_HSE, RCC_PREDIV1_Div1);//  Предделитель PREDIV1: HSE перед множителем PLLMUL
+//	RCC_PLLConfig(RCC_PLLSource_PREDIV1 ,RCC_PLLMul_2); //  тактирование от HSE с PREDIV1 8/1*3 = 24МГц
+//	RCC_PLLCmd(ENABLE); //  Включаем PLL
+//	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);	//На системную шину подаем тактирование с внешнего резонатора
+
 	RCC_DeInit();
 	RCC_HSEConfig(RCC_HSE_ON);
 	HSEStartUpStatus = RCC_WaitForHSEStartUp();
@@ -107,8 +116,6 @@ void RTC_GetDateTime(uint32_t RTC_Counter, RTC_DateTimeTypeDef* RTC_DateTimeStru
 	RTC_DateTimeStruct -> RTC_Seconds = sec;
 	RTC_DateTimeStruct -> RTC_Wday = wday;
 }
-
-
 
 DWORD get_fattime (void) {
 	return	  ((DWORD)(year - 1980) << 25)	

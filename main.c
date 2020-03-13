@@ -76,13 +76,12 @@ int main(void)
 	}
 	
 	DetectCurrentLogFile(RTC_Counter);
-	IWDGInitialization(200);
+	IWDGInitialization(3000);
 	
 	while(1)
 	{
-		RTC_GetDateTime(RTC_GetCounter(), &RTC_DateTime);
-		RTC_WaitForLastTask();
-		
+		RTC_Counter = RTC_GetCounter();
+		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
 		OutputDateAtDisplay();
 		//OutputADCDataAtDisplay();
 				
@@ -91,5 +90,10 @@ int main(void)
 		BlinkGreenLed();
 		
 		IWDG -> KR = 0xAAAA; // перезагрузка
+		
+		while (RTC_Counter == RTC_GetCounter()) 
+		{ 
+		
+		}
 	}
 }

@@ -8,12 +8,14 @@ static XCHAR CurrentLogPath[35];
 
 // 1) возникновение папки 1970
 // 2) создание файла при доставании флешки
-// 3) удаление
+// 3) удаление 
 // 4) если сбилась дата на начальную что произойдет тогда?
+// 5) проверить сработает ли вотчдог, при удалении файлов
+// 6) вывод на дисплей - раз в секунду, по прерыванию/ либо 
+// 	ничего не трогать если не сильно токи меняются
+// 7) тактирование
 
 DWORD fre_clust, fre_sect, tot_sect;
-
-char	buff[1024];		
 
 char StatusOfSdCard[][17] = 
 {
@@ -63,8 +65,8 @@ void DeleteOldestDirectory(void)
 	static FILINFO fileInfo;
 	static XCHAR lfname[_MAX_LFN];
 	
-	int dateOfFileCreation[60] = {};
-	char nameOfMinimalDir[60][20] = {};
+	int dateOfFileCreation[60] = {'\0'};
+	char nameOfMinimalDir[30][25] = {'\0'};
 	int i = 0;
 		
 	XCHAR LogFileName[17];
@@ -78,7 +80,6 @@ void DeleteOldestDirectory(void)
 	while((result == FR_OK))
 	{
 		result = f_readdir(&dir, &fileInfo);
-		
 		dateOfFileCreation[i] = fileInfo.fdate;
 		sprintf(nameOfMinimalDir[i], fileInfo.lfname);
 		
@@ -96,7 +97,6 @@ void DeleteOldestDirectory(void)
 		do
 		{
 			result = f_readdir(&dir, &fileInfo);
-			
 			sprintf(LogFileName, fileInfo.lfname);
 			sprintf(LogPath, "0:/%s/%s", DirectoryName, LogFileName);
 			result = f_unlink(LogPath);
@@ -105,42 +105,6 @@ void DeleteOldestDirectory(void)
 			
 		result = f_unlink(DirectoryName);
 	}	
-}
-
-void EraseSdCard(void)
-{
-	static DIR dir;
-	static FILINFO fileInfo;
-	static XCHAR lfname[_MAX_LFN];
-	
-	XCHAR LogFileName[17];
-	XCHAR DirectoryName[17];
-	XCHAR LogPath[35];
-	
-	fileInfo.lfname = lfname;
-	fileInfo.lfsize = _MAX_LFN - 1; 
-	
-	result = f_opendir(&dir, "/");
-	
-	while((result == FR_OK) && (fileInfo.fname[0] != 'L'))
-	{
-		result = f_readdir(&dir, &fileInfo);	
-	}
-	
-	sprintf(DirectoryName, fileInfo.lfname);
-	result = f_opendir(&dir, DirectoryName);
-	
-	for(;;)
-	{
-		result = f_readdir(&dir, &fileInfo);
-		if ((result != FR_OK) || (fileInfo.fname[0] == 0))
-		break;
-		
-		sprintf(LogFileName, fileInfo.lfname);
-		sprintf(LogPath, "0:/%s/%s", DirectoryName, LogFileName);
-		result = f_unlink(LogPath);
-	}	
-	result = f_unlink(DirectoryName);					
 }
 
 void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_DateTimeStruct)
@@ -154,8 +118,7 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 	uint8_t hours = RTC_DateTimeStruct -> RTC_Hours;
 	uint8_t minutes = RTC_DateTimeStruct -> RTC_Minutes;
 	uint8_t seconds = RTC_DateTimeStruct -> RTC_Seconds;
-		
-		
+				
 	result = f_mount(0, &FATFS_Obj);
 	if (result == FR_OK)
 	{	
@@ -167,7 +130,7 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 			if(fre_sect < MINIMUM_FREE_SPACE_ON_SD_CARD)
 			{
 				DeleteOldestDirectory();
-				PrintDataOnLCD("File Deleted", 0, 0);
+				//PrintDataOnLCD("File Deleted", 0, 0);
 			}
 			
 			sprintf(CurrentLogDirectoryName, "Log_%02d.%02d.%04d",  RTC_DateTimeStruct -> RTC_Date,  
@@ -186,8 +149,11 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 			{	
 				result = f_lseek(&file, file.fsize); 
 									
-				f_printf(&file, "%02d:%02d:%02d \t %03d \t %03d \t %03d \t %03d\n", hours, minutes, seconds,
-					sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
+				for(int i = 0; i < 50; i++)
+				{
+					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d\n", hours, minutes, seconds, i * 20,
+						sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
+				}
 				
 				BlinkBlueLed();
 			}
@@ -201,8 +167,11 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 				
 				result = f_lseek(&file, file.fsize); 
 					
-				f_printf(&file, "%02d:%02d:%02d \t %03d \t %03d \t %03d \t %03d\n", hours, minutes, seconds,
-					sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
+				for(int i = 0; i < 50; i++)
+				{
+					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d\n", hours, minutes, seconds, i * 20,
+						sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
+				}
 	
 				BlinkBlueLed();				
 			}
@@ -256,6 +225,5 @@ void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 	}
 	result = f_mount(0, 0);
 }
-
 
 
