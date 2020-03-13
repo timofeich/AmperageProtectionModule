@@ -20,7 +20,8 @@ void SetSysClockToHSE(void)
 //	RCC_PLLConfig(RCC_PLLSource_PREDIV1 ,RCC_PLLMul_2); //  тактирование от HSE с PREDIV1 8/1*3 = 24МГц
 //	RCC_PLLCmd(ENABLE); //  Включаем PLL
 //	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);	//На системную шину подаем тактирование с внешнего резонатора
-
+// rofl comment
+	
 	RCC_DeInit();
 	RCC_HSEConfig(RCC_HSE_ON);
 	HSEStartUpStatus = RCC_WaitForHSEStartUp();
