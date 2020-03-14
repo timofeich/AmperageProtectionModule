@@ -8,9 +8,7 @@ static XCHAR CurrentLogPath[35];
 
 // 1) возникновение папки 1970
 // 2) создание файла при доставании флешки
-// 3) удаление 
 // 4) если сбилась дата на начальную что произойдет тогда?
-// 5) проверить сработает ли вотчдог, при удалении файлов
 // 6) вывод на дисплей - раз в секунду, по прерыванию/ либо 
 // 	ничего не трогать если не сильно токи меняются
 // 7) тактирование
@@ -80,12 +78,19 @@ void DeleteOldestDirectory(void)
 	while((result == FR_OK))
 	{
 		result = f_readdir(&dir, &fileInfo);
-		dateOfFileCreation[i] = fileInfo.fdate;
-		sprintf(nameOfMinimalDir[i], fileInfo.lfname);
 		
-		if(fileInfo.fname[0] == 0) break; 
+		if(fileInfo.fname[0] == 'L' && fileInfo.fname[1] != 'o' && fileInfo.fname[2] != 'g')
+		{
+			sprintf(nameOfMinimalDir[i], fileInfo.lfname);
 
-		i++;	
+			dateOfFileCreation[i] = fileInfo.fdate;
+		
+			i++;
+		}
+		else
+		{
+			if(fileInfo.fname[0] == 0) break; 
+		}
 	}
 	
 	int indexOfOldestDirectory = GetIndexOfMinimalValue(dateOfFileCreation);
@@ -130,7 +135,7 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 			if(fre_sect < MINIMUM_FREE_SPACE_ON_SD_CARD)
 			{
 				DeleteOldestDirectory();
-				//PrintDataOnLCD("File Deleted", 0, 0);
+				PrintDataOnLCD("File Deleted", 0, 0);
 			}
 			
 			sprintf(CurrentLogDirectoryName, "Log_%02d.%02d.%04d",  RTC_DateTimeStruct -> RTC_Date,  
