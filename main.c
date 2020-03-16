@@ -72,7 +72,7 @@ int main(void)
 	
 	if(RTC_Init() == 1)
 	{
-		SetStartRTCDate(13, 03, 2020, 14, 40, 00);
+		SetStartRTCDate(17, 03, 2020, 14, 40, 00);
 	}
 	
 	DetectCurrentLogFile(RTC_Counter);
