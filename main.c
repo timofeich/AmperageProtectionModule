@@ -72,11 +72,11 @@ int main(void)
 	
 	if(RTC_Init() == 1)
 	{
-		SetStartRTCDate(17, 03, 2020, 14, 40, 00);
+		SetStartRTCDate(16, 03, 2020, 8, 41, 50);
 	}
 	
 	DetectCurrentLogFile(RTC_Counter);
-	IWDGInitialization(3000);
+	//IWDGInitialization(2000);
 	
 	while(1)
 	{
@@ -89,7 +89,7 @@ int main(void)
 		
 		BlinkGreenLed();
 		
-		IWDG -> KR = 0xAAAA; // перезагрузка
+		//IWDG -> KR = 0xAAAA; // перезагрузка
 		
 		while (RTC_Counter == RTC_GetCounter()) 
 		{ 
