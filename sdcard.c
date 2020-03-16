@@ -6,11 +6,6 @@ static XCHAR CurrentLogFileName[17];
 static XCHAR CurrentLogDirectoryName[17];
 static XCHAR CurrentLogPath[35];
 
-// 1) refactor code
-// 2) вывод на дисплей - раз в секунду, по прерыванию/ либо 
-// 	  ничего не трогать если не сильно токи меняются
-// 3) тактирование
-
 DWORD fre_clust, fre_sect, tot_sect;
 
 static char StatusOfSdCard[16][17] = 
