@@ -9,7 +9,7 @@ static XCHAR CurrentLogPath[35];
 
 DWORD fre_clust, fre_sect, tot_sect;
 
-uint16_t AmperageBuffer[50] = { };
+uint16_t AmperageBuffer[225] = { };
 
 static char StatusOfSdCard[16][17] = 
 {
@@ -41,7 +41,7 @@ void OutputADCDataAtDisplay2(int MaxValue)
 	char firstValueADC[17];
 	char secondValueADC[17];
 	
-	sprintf(firstValueADC, "Ia=%2d   Uc=%1.2f",  MaxValue / 16, (float)(MaxValue) / 1241);		
+	sprintf(firstValueADC, "Ia=%2.1f  Uc=%1.2f",  (float)MaxValue / (16 * 1.414), (float)(MaxValue) / 1241);		
 	
 	PrintDataOnLCD(firstValueADC, 0, 0);
 }
@@ -68,7 +68,7 @@ int GetMaxValue(uint16_t * buffer)
 	int max = buffer[0];
 	int indexOfMaxValue = 0;
 	
-	for(int i = 0; i < 50; ++i)
+	for(int i = 0; i < 225; ++i)
 	{
 	    if(buffer[i] > max)
 	    {
@@ -175,15 +175,14 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 			{	
 				result = f_lseek(&file, file.fsize); 
 									
-				for(int i = 0; i < 50; i++)
+				for(int i = 0; i < 450; i++)
 				{
-				
-					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d\n", hours, minutes, seconds, i * 20,
+					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d\n", hours, minutes, seconds, i * 2,
 						sensorData[0] / 16);
 					
 					AmperageBuffer[i] = sensorData[0];
 					
-					if(i == 49)
+					if(i == 225)//mb 450?
 					{
 						int maxAmperage = GetMaxValue(AmperageBuffer);
 						OutputADCDataAtDisplay2(maxAmperage);
@@ -203,9 +202,9 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 				
 				result = f_lseek(&file, file.fsize); 
 					
-				for(int i = 0; i < 50; i++)
+				for(int i = 0; i < 450; i++)
 				{
-					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d\n", hours, minutes, seconds, i * 20,
+					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d\n", hours, minutes, seconds, i * 2,
 						sensorData[0] / 16);			
 				}
 	

@@ -76,7 +76,7 @@ int main(void)
 	}
 
 	DetectCurrentLogFile(RTC_Counter);
-	//IWDGInitialization(2000);
+	IWDGInitialization(2000);
 	
 	while(1)
 	{
@@ -89,7 +89,7 @@ int main(void)
 		SendSensorDataToSDCard(ADCBuffer, &RTC_DateTime);
 		BlinkGreenLed();
 		
-		//IWDG -> KR = 0xAAAA; // перезагрузка		
+		IWDG -> KR = 0xAAAA; // перезагрузка		
 //		while (RTC_Counter == RTC_GetCounter()) 
 //		{ 
 //		
