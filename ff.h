@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------/
-/  FatFs - FAT file system module include file  R0.07e       (C)ChaN, 2009
+/  FatFs - FAT file system module include file  R0.07e       (C)ChaN
 /----------------------------------------------------------------------------/
 / FatFs module is a generic FAT file system module for small embedded systems.
 / This is a free software that opened for education, research and commercial
