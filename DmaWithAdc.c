@@ -10,10 +10,7 @@ void ADC1_Configure(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	    //NVIC
-    /* NVIC Configuration */
     NVIC_InitTypeDef NVIC_InitStructure;
-    /* Enable the USARTx Interrupt */
     NVIC_InitStructure.NVIC_IRQChannel = ADC1_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
@@ -76,7 +73,13 @@ void ADC1_IRQHandler(void)
 {
     if(ADC_GetITStatus(ADC1, ADC_IT_AWD))
     {
+		//SendToUart
+		//Output to SdCard
 		
-        //ADC_ClearITPendingBit(ADC1,ADC_IT_AWD);
+		PrintDataOnLCD("    Voltage     ", 0, 0);
+		PrintDataOnLCD("    Overload   ", 0, 1);
+		
+		
+        //ADC_ClearITPendingBit(ADC1, ADC_IT_AWD);
     }
 }
