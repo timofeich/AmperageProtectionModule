@@ -44,6 +44,27 @@ int GetMaxValue(uint16_t * buffer)
 	return max;
 }
 
+void OutputVoltageToSdCard(FIL *file, uint16_t sensorData[0], uint8_t hours, uint8_t minutes, uint8_t seconds)
+{
+	for(int i = 0; i < 50; i++)
+	{
+		f_printf(file, "%02d:%02d:%02d.%03d \t %03d\r", hours, minutes, seconds, i * 20,
+			sensorData[0] / 16);
+					
+		AmperageBuffer[i] = sensorData[0];
+					
+		if(i % 25 == 0)
+		{
+			int maxAmperage = GetMaxValue(AmperageBuffer);
+			OutputADCDataAtDisplay(maxAmperage);
+						
+			memset(AmperageBuffer, 0, sizeof(AmperageBuffer));
+		}
+	}
+	
+	BlinkBlueLed();	
+}
+
 void DeleteOldestDirectory(void)
 {
 	static DIR dir;
@@ -98,7 +119,7 @@ void DeleteOldestDirectory(void)
 	}	
 }
 
-void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_DateTimeStruct)
+void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 {
 	static FATFS FATFS_Obj;
 	static FIL file;
@@ -132,31 +153,12 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 			}
 			
 			result = f_open(&file, CurrentLogPath, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
-			f_puts("Time of record \t U(V)", &file);
-			
-			int j = 0;
-				
+			f_puts("Time of record \t U(V)\r", &file);
+							
 			if(file.fsize < MAXIMUM_FILE_SIZE && CurrentLogFileName[0] != 0)
 			{	
-				result = f_lseek(&file, file.fsize); 
-									
-				for(int i = 0; i < 50; i++)
-				{
-					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d\r", hours, minutes, seconds, i * 20,
-						sensorData[0] / 16);
-					
-					AmperageBuffer[i] = sensorData[0];
-					
-					if(i % 25 == 0)
-					{
-						int maxAmperage = GetMaxValue(AmperageBuffer);
-						OutputADCDataAtDisplay(maxAmperage);
-						
-						memset(AmperageBuffer, 0, sizeof(AmperageBuffer));
-					}
-				}
-				
-				BlinkBlueLed();
+				result = f_lseek(&file, file.fsize); 								
+				OutputVoltageToSdCard(&file, &sensorData[0], hours, minutes, seconds);
 			}
 			else 
 			{			
@@ -164,17 +166,10 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 				sprintf(CurrentLogPath, "0:/%s/%s", CurrentLogDirectoryName, CurrentLogFileName);
 				
 				result = f_open(&file, CurrentLogPath, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
-				f_puts("Time of record \t Ua(V)", &file);	
+				f_puts("Time of record \t Ua(V)\r", &file);	
 				
 				result = f_lseek(&file, file.fsize); 
-					
-				for(int i = 0; i < 50; i++)
-				{
-					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d\n", hours, minutes, seconds, i * 20,
-						sensorData[0] / 16);			
-				}
-	
-				BlinkBlueLed();				
+				OutputVoltageToSdCard(&file, &sensorData[0], hours, minutes, seconds);				
 			}
 			f_close(&file);
 		}			
@@ -190,6 +185,8 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 	
 	f_mount(0, 0);
 }
+
+
 
 void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 {

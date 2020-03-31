@@ -46,23 +46,28 @@ void SetSysClockToHSE(void)
 
 uint8_t RTC_Init(void)
 {
+	// Включить тактирование модулей управления питанием и управлением резервной областью
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+	// Разрешить доступ к области резервных данных
 	PWR_BackupAccessCmd(ENABLE);
+	// Если RTC выключен - инициализировать
 	if ((RCC->BDCR & RCC_BDCR_RTCEN) != RCC_BDCR_RTCEN)
 	{
+		// Сброс данных в резервной области
 		RCC_BackupResetCmd(ENABLE);
 		RCC_BackupResetCmd(DISABLE);
 
+		// Установить источник тактирования кварц 32768
 		RCC_LSEConfig(RCC_LSE_ON);
 		while ((RCC->BDCR & RCC_BDCR_LSERDY) != RCC_BDCR_LSERDY) {}
 		BKP->RTCCR |= 3;        
 		RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 			
-		RTC_SetPrescaler(0x7FFF); 
+		RTC_SetPrescaler(0x7FFF); // Устанавливаем делитель, чтобы часы считали секунды
 
-		RCC_RTCCLKCmd(ENABLE);
+		RCC_RTCCLKCmd(ENABLE);// Включаем RTC
 
-		RTC_WaitForSynchro();
+		RTC_WaitForSynchro();// Ждем синхронизацию
 			return 1;
 	}
 	
