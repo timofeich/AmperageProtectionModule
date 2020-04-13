@@ -53,13 +53,12 @@ uint8_t RTC_Init(void)
 		RCC_BackupResetCmd(ENABLE);
 		RCC_BackupResetCmd(DISABLE);
 
-		// Установить источник тактирования кварц 32768
 		RCC_LSEConfig(RCC_LSE_ON);
 		while ((RCC->BDCR & RCC_BDCR_LSERDY) != RCC_BDCR_LSERDY) {}
 		BKP->RTCCR |= 3;        
 		RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 			
-		RTC_SetPrescaler(0x7FFF); // Устанавливаем делитель, чтобы часы считали секунды
+		RTC_SetPrescaler(0x7FFF); 
 
 		RCC_RTCCLKCmd(ENABLE);
 

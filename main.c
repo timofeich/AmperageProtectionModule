@@ -9,7 +9,7 @@
 #include "DmaWithAdc.h"
 
 RTC_DateTimeTypeDef RTC_DateTime;
-uint16_t ADCBuffer[4] = {0x0000, 0x0000, 0x0000, 0x0000};
+uint16_t ADCBuffer[] = {0xAAAA};
 
 void OutputDateAtDisplay(void)
 {
@@ -28,8 +28,9 @@ void OutputADCDataAtDisplay()
 	char firstValueADC[17];
 	char secondValueADC[17];
 	
-	sprintf(firstValueADC, "Ia=%04d  Ib=%04d", ADCBuffer[0], ADCBuffer[1]);
-	sprintf(secondValueADC, "Ic=%04d  Id=%04d", ADCBuffer[2], ADCBuffer[3]);
+	sprintf(firstValueADC, "Ia=%2d   Ib=%2d", ADCBuffer[0] * 250 / 4008, ADCBuffer[0] / 16);
+	sprintf(secondValueADC,"Ic=%2d   Uc=%1.2f", ADCBuffer[0] / 16, (float)(ADCBuffer[0]) / 1241);	
+
 		
 	PrintDataOnLCD(firstValueADC, 0, 0);
 	PrintDataOnLCD(secondValueADC, 0, 1);
@@ -72,9 +73,9 @@ int main(void)
 	
 	if(RTC_Init() == 1)
 	{
-		SetStartRTCDate(16, 03, 2020, 8, 41, 50);
+		SetStartRTCDate(25, 03, 2020, 10, 55, 50);
 	}
-	
+
 	DetectCurrentLogFile(RTC_Counter);
 	IWDGInitialization(2000);
 	
@@ -82,18 +83,17 @@ int main(void)
 	{
 		RTC_Counter = RTC_GetCounter();
 		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
+		
 		OutputDateAtDisplay();
-		//OutputADCDataAtDisplay();
+		OutputADCDataAtDisplay();
 				
 		SendSensorDataToSDCard(ADCBuffer, &RTC_DateTime);
-		
 		BlinkGreenLed();
 		
-		IWDG -> KR = 0xAAAA; // перезагрузка
-		
-		while (RTC_Counter == RTC_GetCounter()) 
-		{ 
-		
-		}
+		IWDG -> KR = 0xAAAA; // перезагрузка		
+//		while (RTC_Counter == RTC_GetCounter()) 
+//		{ 
+//		
+//		}
 	}
 }

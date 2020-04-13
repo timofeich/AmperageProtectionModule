@@ -18,27 +18,25 @@ void ADC1_Configure(void)
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
 	ADC_InitStructure.ADC_NbrOfChannel = 1;
 
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_28Cycles5); 
-	ADC_Init ( ADC1, &ADC_InitStructure);
-
-	ADC_Cmd (ADC1,ENABLE);
-
+	ADC_Init (ADC1, &ADC_InitStructure);
+		
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_1Cycles5); 
+	ADC_Cmd(ADC1, ENABLE ) ;
+	ADC_DMACmd(ADC1, ENABLE );
 	ADC_ResetCalibration(ADC1);
 	while(ADC_GetResetCalibrationStatus(ADC1));
 	ADC_StartCalibration(ADC1);
 	while(ADC_GetCalibrationStatus(ADC1));
-
-	ADC_Cmd(ADC1 , ENABLE ) ;
-	ADC_DMACmd(ADC1 , ENABLE );
-
 	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 }
 
 void DMAInitializationForADCRecieve(uint16_t *ADCBuffer)
 {
+	ADC1_Configure();
+	
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);	
 	DMA_InitTypeDef DMA_InitStructure;
-	DMA_InitStructure.DMA_BufferSize = 4;
+	DMA_InitStructure.DMA_BufferSize = 1;
 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
 	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)ADCBuffer;
@@ -50,7 +48,5 @@ void DMAInitializationForADCRecieve(uint16_t *ADCBuffer)
 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
 	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
 	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
-	DMA_Cmd(DMA1_Channel1 , ENABLE ) ;
-
-	ADC1_Configure();
+    DMA_Cmd(DMA1_Channel1, ENABLE); //Enable the DMA1 - Channel1
 }

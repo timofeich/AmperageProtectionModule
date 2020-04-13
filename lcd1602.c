@@ -20,7 +20,7 @@ void I2CInitialization(void)
 	I2C_InitStructure.I2C_OwnAddress1 = 0x15;
 	I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
 	I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-	I2C_InitStructure.I2C_ClockSpeed = 200000;//400000
+	I2C_InitStructure.I2C_ClockSpeed = 400000;//400000
 
 	I2C_Cmd(I2C1, ENABLE);
 	I2C_Init(I2C1, &I2C_InitStructure);
@@ -84,13 +84,13 @@ void SendDataToLCD (char data)
 	char data_u, data_l;
 	uint8_t data_t[4];
 	
-	data_u = (data&0xf0);
-	data_l = ((data<<4)&0xf0);
+	data_u = (data & 0xf0);
+	data_l = ((data << 4) & 0xf0);
 	
-	data_t[0] = data_u|0x0D;  //en=1, rs=1
-	data_t[1] = data_u|0x09;  //en=0, rs=1
-	data_t[2] = data_l|0x0D;  //en=1, rs=1
-	data_t[3] = data_l|0x09;  //en=0, rs=1
+	data_t[0] = data_u | 0x0D;  //en=1, rs=1
+	data_t[1] = data_u | 0x09;  //en=0, rs=1
+	data_t[2] = data_l | 0x0D;  //en=1, rs=1
+	data_t[3] = data_l | 0x09;  //en=0, rs=1
 	
 	I2C_GenerateSTART(I2C1,ENABLE);
 	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
@@ -108,7 +108,8 @@ void SendDataToLCD (char data)
 
 }
 
-void SetXYCoordinatsToLCD(uint8_t x, uint8_t y) {
+void SetXYCoordinatsToLCD(uint8_t x, uint8_t y) 
+{
 	uint8_t addr = x + (y * 0x40);
 	SendCommandToLCD(0x80 | addr);
 }
@@ -118,7 +119,8 @@ void SendStringToLCD(char *str)
 	while(*str) SendDataToLCD(*str++);
 }
 
-void PrintDataOnLCD(char * string, uint8_t x, uint8_t y) {
+void PrintDataOnLCD(char * string, uint8_t x, uint8_t y) 
+{
 	SetXYCoordinatsToLCD(x,y);
 	SendStringToLCD(string);
 }

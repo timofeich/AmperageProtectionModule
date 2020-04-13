@@ -147,7 +147,7 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 				for(int i = 0; i < 50; i++)
 				{
 					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d\n", hours, minutes, seconds, i * 20,
-						sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
+						sensorData[0] / 16, sensorData[0] / 16, sensorData[0] / 16, sensorData[0] / 16);
 				}
 				
 				BlinkBlueLed();
@@ -165,7 +165,7 @@ void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_Dat
 				for(int i = 0; i < 50; i++)
 				{
 					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d\n", hours, minutes, seconds, i * 20,
-						sensorData[0], sensorData[1], sensorData[2], sensorData[3]);
+						sensorData[0] / 16, sensorData[0] / 16, sensorData[0] / 16, sensorData[0] / 16);
 				}
 	
 				BlinkBlueLed();				
