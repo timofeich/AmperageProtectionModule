@@ -23,19 +23,6 @@ void OutputDateAtDisplay(void)
 	PrintDataOnLCD(timeBuffer, 4, 1);
 }
 
-void OutputADCDataAtDisplay()
-{
-	char firstValueADC[17];
-	char secondValueADC[17];
-	
-	sprintf(firstValueADC, "Ia=%2d   Ib=%2d", ADCBuffer[0] * 250 / 4008, ADCBuffer[0] / 16);
-	sprintf(secondValueADC,"Ic=%2d   Uc=%1.2f", ADCBuffer[0] / 16, (float)(ADCBuffer[0]) / 1241);	
-
-		
-	PrintDataOnLCD(firstValueADC, 0, 0);
-	PrintDataOnLCD(secondValueADC, 0, 1);
-}
-
 void SetStartRTCDate(uint8_t day, uint8_t month, uint16_t year, 
 		uint8_t hours, uint8_t minutes, uint8_t seconds)
 {
@@ -73,27 +60,21 @@ int main(void)
 	
 	if(RTC_Init() == 1)
 	{
-		SetStartRTCDate(25, 03, 2020, 10, 55, 50);
+		SetStartRTCDate(27, 03, 2020, 10, 55, 50);
 	}
 
 	DetectCurrentLogFile(RTC_Counter);
-	IWDGInitialization(2000);
+	IWDGInitialization(200);
 	
 	while(1)
 	{
 		RTC_Counter = RTC_GetCounter();
 		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
-		
-		OutputDateAtDisplay();
-		OutputADCDataAtDisplay();
 				
 		SendSensorDataToSDCard(ADCBuffer, &RTC_DateTime);
 		BlinkGreenLed();
 		
 		IWDG -> KR = 0xAAAA; // перезагрузка		
-//		while (RTC_Counter == RTC_GetCounter()) 
-//		{ 
-//		
-//		}
+
 	}
 }

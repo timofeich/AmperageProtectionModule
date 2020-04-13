@@ -14,4 +14,5 @@
 void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_DateTimeStruct);
 void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct);
 
+
 #endif //SDCARD_SDCARD_H_

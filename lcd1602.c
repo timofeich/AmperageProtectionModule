@@ -2,6 +2,26 @@
 
 uint8_t LCD_ADDR = 0x3F;
 
+static char StatusOfSdCard[16][17] = 
+{
+	"                ",
+	"SD card error   ", //FR_DISK_ERR
+	"Filesystem error", //FR_INT_ERR
+	"SD is not ready ", //FR_NOT_READY
+	"No file in a dir", //FR_NO_FILE
+	"No such path    ",	//FR_NO_PATH
+	"Invalid filepath",	//FR_INVALID_NAME
+	"Access denied   ",	//FR_DENIED
+	"File alrdy exist",	//FR_EXIST
+	"Invalid file obj",	//FR_INVALID_OBJECT
+	"Write protection",	//FR_WRITE_PROTECTED
+	"Invalid drv numb",	//FR_INVALID_DRIVE
+	"Drive not enable",	//FR_NOT_ENABLED
+	"No filesystem   ",	//FR_NO_FILESYSTEM
+	"Volume too small",	//FR_MKFS_ABORTED
+	"Timeout    error"	//FR_TIMEOUT
+}; 
+
 void I2CInitialization(void) 
 {
 	I2C_InitTypeDef  I2C_InitStructure;
@@ -20,7 +40,7 @@ void I2CInitialization(void)
 	I2C_InitStructure.I2C_OwnAddress1 = 0x15;
 	I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
 	I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-	I2C_InitStructure.I2C_ClockSpeed = 400000;//400000
+	I2C_InitStructure.I2C_ClockSpeed = 400000;
 
 	I2C_Cmd(I2C1, ENABLE);
 	I2C_Init(I2C1, &I2C_InitStructure);
@@ -123,5 +143,23 @@ void PrintDataOnLCD(char * string, uint8_t x, uint8_t y)
 {
 	SetXYCoordinatsToLCD(x,y);
 	SendStringToLCD(string);
+}
+
+void OutputADCDataAtDisplay(int maxVoltageValue)
+{
+	char firstValueADC[17];
+	char secondValueADC[17];
+	
+	sprintf(firstValueADC, "Ia=%3.1f Uc=%1.2f",  (float)maxVoltageValue / (16 * 1.414), 
+		(float)(maxVoltageValue) / 1241);		
+	
+	PrintDataOnLCD(firstValueADC, 0, 0);
+	PrintDataOnLCD(StatusOfSdCard[0], 0, 1);
+}
+
+void OutputSdCardStatusOnLCD(int status)
+{	
+	PrintDataOnLCD(StatusOfSdCard[0], 0, 0);
+	PrintDataOnLCD(StatusOfSdCard[status], 0, 1);
 }
 
