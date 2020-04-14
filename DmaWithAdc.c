@@ -27,13 +27,13 @@ void ADC1_Configure(void)
 
 	ADC_Init (ADC1, &ADC_InitStructure);
 			
-	ADC_AnalogWatchdogThresholdsConfig(ADC1, 3200, 0);
-	
-    ADC_AnalogWatchdogSingleChannelConfig(ADC1, ADC_Channel_1);
-	
-    ADC_AnalogWatchdogCmd(ADC1, ADC_AnalogWatchdog_SingleRegEnable);
- 
-    ADC_ITConfig(ADC1, ADC_IT_AWD, ENABLE);
+//	ADC_AnalogWatchdogThresholdsConfig(ADC1, 3200, 0);
+//	
+//    ADC_AnalogWatchdogSingleChannelConfig(ADC1, ADC_Channel_1);
+//	
+//    ADC_AnalogWatchdogCmd(ADC1, ADC_AnalogWatchdog_SingleRegEnable);
+// 
+//    ADC_ITConfig(ADC1, ADC_IT_AWD, ENABLE);
 	
 	ADC_Cmd(ADC1, ENABLE) ;
 	ADC_DMACmd(ADC1, ENABLE);
@@ -67,7 +67,6 @@ void DMAInitializationForADCRecieve(uint16_t *ADCBuffer)
 	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
 	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
     DMA_Cmd(DMA1_Channel1, ENABLE); //Enable the DMA1 - Channel1
-
 }
 
 void ADC1_IRQHandler(void)
