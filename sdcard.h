@@ -13,6 +13,6 @@
 
 void SendSensorDataToSDCard(uint16_t sensorData[4], RTC_DateTimeTypeDef* RTC_DateTimeStruct);
 void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct);
-
+int GetMaxValue(uint16_t * buffer);
 
 #endif //SDCARD_SDCARD_H_

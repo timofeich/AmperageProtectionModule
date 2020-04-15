@@ -33,7 +33,7 @@ int GetMaxValue(uint16_t * buffer)
 	int max = buffer[0];
 	int indexOfMaxValue = 0;
 	
-	for(int i = 0; i < 25; ++i)
+	for(int i = 0; i < 50; ++i)
 	{
 	    if(buffer[i] > max)
 	    {
@@ -183,10 +183,9 @@ void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_Dat
 		OutputSdCardStatusOnLCD(result);
 	}
 	
+	
 	f_mount(0, 0);
 }
-
-
 
 void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 {

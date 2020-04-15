@@ -150,8 +150,8 @@ void OutputADCDataAtDisplay(int maxVoltageValue)
 	char firstValueADC[17];
 	char secondValueADC[17];
 	
-	sprintf(firstValueADC, "Ia=%3.1f Uc=%1.2f",  (float)maxVoltageValue / (16 * 1.414), 
-		(float)(maxVoltageValue) / 1241);		
+	sprintf(firstValueADC, "Ia=%4dUc=%4d",  maxVoltageValue /*/ (16 * 1.414)*/, 
+		maxVoltageValue /*/ 1241*/);		
 	
 	PrintDataOnLCD(firstValueADC, 0, 0);
 	PrintDataOnLCD(StatusOfSdCard[0], 0, 1);

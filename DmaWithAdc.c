@@ -25,15 +25,15 @@ void ADC1_Configure(void)
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
 	ADC_InitStructure.ADC_NbrOfChannel = 1;
 
-	ADC_Init (ADC1, &ADC_InitStructure);
-			
-	ADC_AnalogWatchdogThresholdsConfig(ADC1, 3200, 0);
-	
-    ADC_AnalogWatchdogSingleChannelConfig(ADC1, ADC_Channel_1);
-	
-    ADC_AnalogWatchdogCmd(ADC1, ADC_AnalogWatchdog_SingleRegEnable);
- 
-    ADC_ITConfig(ADC1, ADC_IT_AWD, ENABLE);
+//	ADC_Init (ADC1, &ADC_InitStructure);
+//			
+//	ADC_AnalogWatchdogThresholdsConfig(ADC1, 3200, 0);
+//	
+//    ADC_AnalogWatchdogSingleChannelConfig(ADC1, ADC_Channel_1);
+//	
+//    ADC_AnalogWatchdogCmd(ADC1, ADC_AnalogWatchdog_SingleRegEnable);
+// 
+//    ADC_ITConfig(ADC1, ADC_IT_AWD, ENABLE);
 	
 	ADC_Cmd(ADC1, ENABLE) ;
 	ADC_DMACmd(ADC1, ENABLE);

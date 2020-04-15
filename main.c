@@ -48,6 +48,7 @@ void DetectCurrentLogFile(uint32_t RTC_Counter)
 int main(void)
 {
 	uint32_t RTC_Counter = 0;
+	uint16_t AmperageBuffer[25] = { };
 	
 	LEDsInitialization();
 	SetSysClockToHSE();
@@ -68,11 +69,25 @@ int main(void)
 	
 	while(1)
 	{
-		RTC_Counter = RTC_GetCounter();
-		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
+//		RTC_Counter = RTC_GetCounter();
+//		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
+//				
+//		SendSensorDataToSDCard(ADCBuffer, &RTC_DateTime);
+//		BlinkGreenLed();
+		
+		for(int i = 0; i < 100; i++)
+		{
 				
-		SendSensorDataToSDCard(ADCBuffer, &RTC_DateTime);
-		BlinkGreenLed();
+			AmperageBuffer[i] = ADCBuffer[i];
+					
+			if(i % 50 == 0)
+			{
+				int maxAmperage = GetMaxValue(AmperageBuffer);
+				OutputADCDataAtDisplay(maxAmperage);
+						
+				memset(AmperageBuffer, 0, sizeof(AmperageBuffer));
+			}
+		}
 		
 		IWDG -> KR = 0xAAAA; // перезагрузка		
 	}
