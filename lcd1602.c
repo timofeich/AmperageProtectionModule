@@ -148,10 +148,13 @@ void PrintDataOnLCD(char * string, uint8_t x, uint8_t y)
 void OutputADCDataAtDisplay(int maxVoltageValue)
 {
 	char firstValueADC[17];
-	char secondValueADC[17];
+	float CurrentAmperageOnVagon;
 	
-	sprintf(firstValueADC, "Ia=%4dUc=%4d",  maxVoltageValue /*/ (16 * 1.414)*/, 
-		maxVoltageValue /*/ 1241*/);		
+	CurrentAmperageOnVagon = (((float)maxVoltageValue / 1467 - 1.56) * 201.61);
+	
+	sprintf(firstValueADC, "Ia=%3.1f Uc=%1.2f", (float)abs(CurrentAmperageOnVagon), 
+		(float)maxVoltageValue / 1467);		
+
 	
 	PrintDataOnLCD(firstValueADC, 0, 0);
 	PrintDataOnLCD(StatusOfSdCard[0], 0, 1);

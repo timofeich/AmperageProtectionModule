@@ -9,7 +9,7 @@ static XCHAR CurrentLogPath[35];
 
 DWORD fre_clust, fre_sect, tot_sect;
 
-uint16_t AmperageBuffer[25] = { };
+int16_t AmperageBuffer[25];
 
 int GetIndexOfMinimalValue(int * array)
 {
@@ -119,7 +119,8 @@ void DeleteOldestDirectory(void)
 	}	
 }
 
-void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_DateTimeStruct)
+
+void SendSensorDataToSDCard(int16_t * sensorData, RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 {
 	static FATFS FATFS_Obj;
 	static FIL file;
@@ -153,12 +154,32 @@ void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_Dat
 			}
 			
 			result = f_open(&file, CurrentLogPath, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
-			f_puts("Time of record \t U(V)\r", &file);
-							
+
+			f_puts("Time of record \t U(V) \r\n", &file);
+			
+			int j = 0;
+				
 			if(file.fsize < MAXIMUM_FILE_SIZE && CurrentLogFileName[0] != 0)
 			{	
-				result = f_lseek(&file, file.fsize); 								
-				OutputVoltageToSdCard(&file, &sensorData[0], hours, minutes, seconds);
+				result = f_lseek(&file, file.fsize); 
+									
+				for(int i = 0; i < 50; i++)
+				{
+					f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 20, 
+							(int)(((float)sensorData[0] / 1467 - 1.56) * 201.61 * 1.414));
+					
+					AmperageBuffer[i] = sensorData[0];
+					
+					if(i % 25 == 0 && i != 0)
+					{
+						int maxAmperage = GetMaxValue(AmperageBuffer);
+						OutputADCDataAtDisplay(maxAmperage);
+						
+						memset(AmperageBuffer, 0, sizeof(AmperageBuffer));
+					}
+				}
+				
+				BlinkBlueLed();
 			}
 			else 
 			{			
@@ -166,10 +187,18 @@ void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_Dat
 				sprintf(CurrentLogPath, "0:/%s/%s", CurrentLogDirectoryName, CurrentLogFileName);
 				
 				result = f_open(&file, CurrentLogPath, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
-				f_puts("Time of record \t Ua(V)\r", &file);	
+
+				f_puts("Time of record \t Ua(V) \r\n", &file);	
 				
 				result = f_lseek(&file, file.fsize); 
-				OutputVoltageToSdCard(&file, &sensorData[0], hours, minutes, seconds);				
+					
+				for(int i = 0; i < 50; i++)
+				{
+					f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 20, 
+							(int)(((float)sensorData[0] / 1467 - 1.56) * 201.61 * 1.414));				
+				}
+	
+				BlinkBlueLed();				
 			}
 			f_close(&file);
 		}			

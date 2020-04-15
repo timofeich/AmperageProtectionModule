@@ -9,7 +9,7 @@
 #include "DmaWithAdc.h"
 
 RTC_DateTimeTypeDef RTC_DateTime;
-uint16_t ADCBuffer[] = {0xAAAA};
+uint16_t ADCBuffer[] = {0x0000};
 
 void OutputDateAtDisplay(void)
 {
@@ -65,7 +65,7 @@ int main(void)
 	}
 
 	DetectCurrentLogFile(RTC_Counter);
-	IWDGInitialization(200);
+	//IWDGInitialization(200);
 	
 	while(1)
 	{
@@ -89,6 +89,7 @@ int main(void)
 			}
 		}
 		
-		IWDG -> KR = 0xAAAA; // перезагрузка		
+		//IWDG -> KR = 0xAAAA; // перезагрузка		
+
 	}
 }

@@ -25,8 +25,8 @@ void ADC1_Configure(void)
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
 	ADC_InitStructure.ADC_NbrOfChannel = 1;
 
-//	ADC_Init (ADC1, &ADC_InitStructure);
-//			
+	ADC_Init (ADC1, &ADC_InitStructure);
+			
 //	ADC_AnalogWatchdogThresholdsConfig(ADC1, 3200, 0);
 //	
 //    ADC_AnalogWatchdogSingleChannelConfig(ADC1, ADC_Channel_1);
@@ -78,8 +78,7 @@ void ADC1_IRQHandler(void)
 		
 		PrintDataOnLCD("    Voltage     ", 0, 0);
 		PrintDataOnLCD("    Overload   ", 0, 1);
-		
-		
+			
         //ADC_ClearITPendingBit(ADC1, ADC_IT_AWD);
     }
 }
