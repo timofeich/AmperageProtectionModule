@@ -56,7 +56,7 @@ void OutputVoltageToSdCard(FIL *file, uint16_t sensorData[0], uint8_t hours, uin
 		if(i % 25 == 0)
 		{
 			//int maxAmperage = GetMaxValue(AmperageBuffer);
-			OutputADCDataAtDisplay(sensorData);
+			OutputADCDataAtDisplay(AmperageBuffer);
 						
 			memset(AmperageBuffer, 0, sizeof(AmperageBuffer));
 		}
@@ -166,7 +166,7 @@ void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_Dat
 					if(sensorData[0] > 2222)
 					{				
 						f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 20, 
-							(int)(((float)sensorData[0] / 1425 - 1.56) * 161.53 * 1.414));			
+							(int)(((float)sensorData[0] / 1425 - 1.56) * 201.63 * 1.414));			
 					}
 					else
 					{					
@@ -179,7 +179,7 @@ void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_Dat
 					if(i % 24 == 0 && i != 0)
 					{
 						int maxAmperage = GetMaxValue(AmperageBuffer);
-						OutputADCDataAtDisplay(sensorData[0]);
+						OutputADCDataAtDisplay(maxAmperage);
 						
 						//memset(AmperageBuffer, 0, sizeof(AmperageBuffer));
 					}
@@ -202,7 +202,7 @@ void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_Dat
 					if(sensorData[0] > 2222)
 					{
 						f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 20, 
-							(int)(((float)sensorData[0] / 1425 - 1.56) * 161.53 * 1.414));				
+							(int)(((float)sensorData[0] / 1425 - 1.56) * 201.63 * 1.414));				
 					}
 					else
 					{						
@@ -215,11 +215,10 @@ void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_Dat
 					if(i % 24 == 0 && i != 0)
 					{
 						int maxAmperage = GetMaxValue(AmperageBuffer);
-						OutputADCDataAtDisplay(sensorData[0]);
+						OutputADCDataAtDisplay(maxAmperage);
 						
 						//memset(AmperageBuffer, 0, sizeof(AmperageBuffer));
-					}
-					
+					}				
 				}
 	
 				BlinkBlueLed();				
