@@ -69,27 +69,12 @@ int main(void)
 	
 	while(1)
 	{
-//		RTC_Counter = RTC_GetCounter();
-//		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
-//				
-//		SendSensorDataToSDCard(ADCBuffer, &RTC_DateTime);
-//		BlinkGreenLed();
-		
-		for(int i = 0; i < 100; i++)
-		{
-				
-			AmperageBuffer[i] = ADCBuffer[i];
-					
-			if(i % 50 == 0)
-			{
-				int maxAmperage = GetMaxValue(AmperageBuffer);
-				OutputADCDataAtDisplay(maxAmperage);
-						
-				memset(AmperageBuffer, 0, sizeof(AmperageBuffer));
-			}
-		}
+		RTC_Counter = RTC_GetCounter();
+		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
+			
+		SendSensorDataToSDCard(ADCBuffer, &RTC_DateTime);
+		BlinkGreenLed();
 		
 		//IWDG -> KR = 0xAAAA; // перезагрузка		
-
 	}
 }

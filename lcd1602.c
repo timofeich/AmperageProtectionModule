@@ -150,10 +150,10 @@ void OutputADCDataAtDisplay(int maxVoltageValue)
 	char firstValueADC[17];
 	float CurrentAmperageOnVagon;
 	
-	CurrentAmperageOnVagon = (((float)maxVoltageValue / 1467 - 1.56) * 201.61);
+	CurrentAmperageOnVagon = (((float)maxVoltageValue / 1425 - 1.56) * 201.63);
 	
 	sprintf(firstValueADC, "Ia=%3.1f Uc=%1.2f", (float)abs(CurrentAmperageOnVagon), 
-		(float)maxVoltageValue / 1467);		
+		(float)((float)maxVoltageValue / 1440));		
 
 	
 	PrintDataOnLCD(firstValueADC, 0, 0);

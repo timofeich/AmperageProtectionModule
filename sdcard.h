@@ -11,7 +11,7 @@
 #include "led.h"
 #include "lcd1602.h"
 
-void SendSensorDataToSDCard(int16_t * sensorData, RTC_DateTimeTypeDef* RTC_DateTimeStruct);
+void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_DateTimeStruct);
 void GetCurrentLogFile(RTC_DateTimeTypeDef* RTC_DateTimeStruct);
 int GetMaxValue(uint16_t * buffer);
 
