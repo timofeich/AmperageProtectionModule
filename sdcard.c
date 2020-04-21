@@ -9,7 +9,7 @@ static XCHAR CurrentLogPath[35];
 
 DWORD fre_clust, fre_sect, tot_sect;
 
-int16_t AmperageBuffer[50];
+int16_t AmperageBuffer[100];
 
 int GetIndexOfMinimalValue(int * array)
 {
@@ -33,7 +33,7 @@ int GetMaxValue(uint16_t * buffer)
 	int max = buffer[0];
 	int indexOfMaxValue = 0;
 	
-	for(int i = 0; i < 50; ++i)
+	for(int i = 0; i < 100; ++i)
 	{
 	    if(buffer[i] > max)
 	    {
@@ -161,22 +161,22 @@ void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_Dat
 			{	
 				result = f_lseek(&file, file.fsize); 
 									
-				for(int i = 0; i < 50; i++)
+				for(int i = 0; i < 100; i++)
 				{
-					if(sensorData[0] > 2222)
+					if(sensorData[0] > 2048)
 					{				
-						f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 20, 
-							(int)(((float)sensorData[0] / 1425 - 1.56) * 201.63 * 1.414));			
+						f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 10, 
+							(int)(((float)sensorData[0] / 1330 - 1.52) * 190.90));			
 					}
 					else
 					{					
-						f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 20, 
-							(int)(((float)sensorData[0] / 1425 - 1.56) * 161.53 * 1.414));							
+						f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 10, 
+							(int)(((float)sensorData[0] / 1330 - 1.52) * 190.90));							
 					}
 					
 					AmperageBuffer[i] = sensorData[0];
 					
-					if(i % 24 == 0 && i != 0)
+					if(i % 99 == 0 && i != 0)
 					{
 						int maxAmperage = GetMaxValue(AmperageBuffer);
 						OutputADCDataAtDisplay(maxAmperage);
@@ -197,22 +197,22 @@ void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_Dat
 				
 				result = f_lseek(&file, file.fsize); 
 					
-				for(int i = 0; i < 50; i++)
+				for(int i = 0; i < 100; i++)
 				{
-					if(sensorData[0] > 2222)
+					if(sensorData[0] > 2048)
 					{
-						f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 20, 
-							(int)(((float)sensorData[0] / 1425 - 1.56) * 201.63 * 1.414));				
+						f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 10, 
+							(int)(((float)sensorData[0] / 1330 - 1.52) * 190.90));				
 					}
 					else
 					{						
-						f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 20, 
-							(int)(((float)sensorData[0] / 1425 - 1.56) * 161.53 * 1.414));
+						f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 10, 
+							(int)(((float)sensorData[0] / 1330 - 1.52) * 190.90));
 					}
 					
 					AmperageBuffer[i] = sensorData[0];
 					
-					if(i % 24 == 0 && i != 0)
+					if(i % 99 == 0 && i != 0)
 					{
 						int maxAmperage = GetMaxValue(AmperageBuffer);
 						OutputADCDataAtDisplay(maxAmperage);

@@ -52,6 +52,7 @@ int main(void)
 	
 	LEDsInitialization();
 	SetSysClockToHSE();
+	//RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 	Timer2Initialization();
 			
 	I2CInitialization();	

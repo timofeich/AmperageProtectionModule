@@ -40,7 +40,7 @@ void I2CInitialization(void)
 	I2C_InitStructure.I2C_OwnAddress1 = 0x15;
 	I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
 	I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-	I2C_InitStructure.I2C_ClockSpeed = 400000;
+	I2C_InitStructure.I2C_ClockSpeed = 100000;
 
 	I2C_Cmd(I2C1, ENABLE);
 	I2C_Init(I2C1, &I2C_InitStructure);
@@ -150,10 +150,10 @@ void OutputADCDataAtDisplay(int maxVoltageValue)
 	char firstValueADC[17];
 	float CurrentAmperageOnVagon;
 	
-	CurrentAmperageOnVagon = (((float)maxVoltageValue / 1425 - 1.56) * 201.63);
+	CurrentAmperageOnVagon = (((float)maxVoltageValue / 1330 - 1.52) * 135.01);
 	
 	sprintf(firstValueADC, "Ia=%3.1f Uc=%1.2f", (float)abs(CurrentAmperageOnVagon), 
-		(float)((float)maxVoltageValue / 1440));		
+		(float)((float)maxVoltageValue / 1330));		
 
 	
 	PrintDataOnLCD(firstValueADC, 0, 0);
