@@ -40,7 +40,7 @@ void I2CInitialization(void)
 	I2C_InitStructure.I2C_OwnAddress1 = 0x15;
 	I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
 	I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-	I2C_InitStructure.I2C_ClockSpeed = 100000;
+	I2C_InitStructure.I2C_ClockSpeed = 50000;
 
 	I2C_Cmd(I2C1, ENABLE);
 	I2C_Init(I2C1, &I2C_InitStructure);
@@ -145,19 +145,22 @@ void PrintDataOnLCD(char * string, uint8_t x, uint8_t y)
 	SendStringToLCD(string);
 }
 
-void OutputADCDataAtDisplay(int maxVoltageValue)
+void OutputADCDataAtDisplay(uint16_t maxVoltageValue, uint16_t maxAmperageValue,  
+	uint16_t maxAmperageValueB,  uint16_t maxAmperageValueC)
 {
-	char firstValueADC[17];
-	float CurrentAmperageOnVagon;
+	char firstValueFromADC[17];
+	char secondValueFromADC[17]; 
 	
-	CurrentAmperageOnVagon = (((float)maxVoltageValue / 1330 - 1.52) * 135.01);
+	float CurrentAmperageOnVagon = (((float)maxVoltageValue / 1330 - 1.52) * 135.01);
 	
-	sprintf(firstValueADC, "Ia=%3.1f Uc=%1.2f", (float)abs(CurrentAmperageOnVagon), 
-		(float)((float)maxVoltageValue / 1330));		
-
+	sprintf(firstValueFromADC, "U=%3.1f Ia=%2.1f", (float)CurrentAmperageOnVagon, 
+		(((float)maxAmperageValue * 0.000919 - 2.29) / 0.02));
 	
-	PrintDataOnLCD(firstValueADC, 0, 0);
-	PrintDataOnLCD(StatusOfSdCard[0], 0, 1);
+	sprintf(secondValueFromADC,"I=%2.1f I=%2.1f", (((float)maxAmperageValueB * 0.000919 - 2.29) / 0.02), 
+		(((float)maxAmperageValueC * 0.000919 - 2.29) / 0.02));
+	
+	PrintDataOnLCD(firstValueFromADC, 0, 0);
+	PrintDataOnLCD(secondValueFromADC, 0, 1);
 }
 
 void OutputSdCardStatusOnLCD(int status)

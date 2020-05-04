@@ -9,7 +9,7 @@
 #include "DmaWithAdc.h"
 
 RTC_DateTimeTypeDef RTC_DateTime;
-uint16_t ADCBuffer[] = {0x0000};
+uint16_t ADCBuffer[4] = {0x0000, 0x0000, 0x0000, 0x0000};
 
 void OutputDateAtDisplay(void)
 {
@@ -72,10 +72,11 @@ int main(void)
 	{
 		RTC_Counter = RTC_GetCounter();
 		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
-			
+		
+		//OutputADCDataAtDisplay(ADCBuffer[0], ADCBuffer[1], ADCBuffer[2], ADCBuffer[3]);	
 		SendSensorDataToSDCard(ADCBuffer, &RTC_DateTime);
 		BlinkGreenLed();
-		
+		//delay_ms(300);
 		//IWDG -> KR = 0xAAAA; // перезагрузка		
 	}
 }

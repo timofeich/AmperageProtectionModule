@@ -44,27 +44,6 @@ int GetMaxValue(uint16_t * buffer)
 	return max;
 }
 
-void OutputVoltageToSdCard(FIL *file, uint16_t sensorData[0], uint8_t hours, uint8_t minutes, uint8_t seconds)
-{
-	for(int i = 0; i < 50; i++)
-	{
-		f_printf(file, "%02d:%02d:%02d.%03d \t %03d\r", hours, minutes, seconds, i * 20,
-			sensorData[0] / 16);
-					
-		AmperageBuffer[i] = sensorData[0];
-					
-		if(i % 25 == 0)
-		{
-			//int maxAmperage = GetMaxValue(AmperageBuffer);
-			OutputADCDataAtDisplay(AmperageBuffer);
-						
-			memset(AmperageBuffer, 0, sizeof(AmperageBuffer));
-		}
-	}
-	
-	BlinkBlueLed();	
-}
-
 void DeleteOldestDirectory(void)
 {
 	static DIR dir;
@@ -120,7 +99,7 @@ void DeleteOldestDirectory(void)
 }
 
 
-void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_DateTimeStruct)
+void SendSensorDataToSDCard(uint16_t * sensorData, RTC_DateTimeTypeDef* RTC_DateTimeStruct)
 {
 	static FATFS FATFS_Obj;
 	static FIL file;
@@ -155,7 +134,7 @@ void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_Dat
 			}
 			
 			result = f_open(&file, CurrentLogPath, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
-			f_puts("Time of record \t U(V) \r\n", &file);
+			f_puts("Time of record \t U(V) \t Ia(A) \t Ib(A) \t Ic(A)\r\n", &file);
 				
 			if(file.fsize < MAXIMUM_FILE_SIZE && CurrentLogFileName[0] != 0)
 			{	
@@ -163,25 +142,20 @@ void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_Dat
 									
 				for(int i = 0; i < 100; i++)
 				{
-					if(sensorData[0] > 2048)
-					{				
-						f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 10, 
-							(int)(((float)sensorData[0] / 1330 - 1.52) * 190.90));			
-					}
-					else
-					{					
-						f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 10, 
-							(int)(((float)sensorData[0] / 1330 - 1.52) * 190.90));							
-					}
+					//if(sensorData[0] > 2048)			
+					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d \n", hours, minutes, seconds, i * 10, 
+						(int)(((float)sensorData[0] / 1330 - 1.52) * 190.90), 
+						(int)(((float)sensorData[1] * 0.000919 - 2.29) / 0.02),
+						(int)(((float)sensorData[2] * 0.000919 - 2.29) / 0.02),
+						(int)(((float)sensorData[3] * 0.000919 - 2.29) / 0.02)
+						);			
 					
 					AmperageBuffer[i] = sensorData[0];
 					
 					if(i % 99 == 0 && i != 0)
 					{
 						int maxAmperage = GetMaxValue(AmperageBuffer);
-						OutputADCDataAtDisplay(maxAmperage);
-						
-						//memset(AmperageBuffer, 0, sizeof(AmperageBuffer));
+						OutputADCDataAtDisplay(maxAmperage, sensorData[1], sensorData[2], sensorData[3]);
 					}
 				}
 				
@@ -193,31 +167,26 @@ void SendSensorDataToSDCard(uint16_t sensorData[0], RTC_DateTimeTypeDef* RTC_Dat
 				sprintf(CurrentLogPath, "0:/%s/%s", CurrentLogDirectoryName, CurrentLogFileName);
 				
 				result = f_open(&file, CurrentLogPath, FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
-				f_puts("Time of record \t Ua(V) \r\n", &file);	
+				f_puts("Time of record \t U(V) \t Ia(A) \t Ib(A) \t Ic(A)\r\n", &file);
 				
 				result = f_lseek(&file, file.fsize); 
 					
 				for(int i = 0; i < 100; i++)
 				{
-					if(sensorData[0] > 2048)
-					{
-						f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 10, 
-							(int)(((float)sensorData[0] / 1330 - 1.52) * 190.90));				
-					}
-					else
-					{						
-						f_printf(&file, "%02d:%02d:%02d.%03d \t %3d\n", hours, minutes, seconds, i * 10, 
-							(int)(((float)sensorData[0] / 1330 - 1.52) * 190.90));
-					}
+					//if(sensorData[0] > 2048)
+					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d \n", hours, minutes, seconds, i * 10, 
+						(int)(((float)sensorData[0] / 1330 - 1.52) * 190.90),
+						(int)(((float)sensorData[1] * 0.000919 - 2.29) / 0.02),
+						(int)(((float)sensorData[2] * 0.000919 - 2.29) / 0.02),
+						(int)(((float)sensorData[3] * 0.000919 - 2.29) / 0.02)
+						);		
 					
 					AmperageBuffer[i] = sensorData[0];
 					
 					if(i % 99 == 0 && i != 0)
 					{
 						int maxAmperage = GetMaxValue(AmperageBuffer);
-						OutputADCDataAtDisplay(maxAmperage);
-						
-						//memset(AmperageBuffer, 0, sizeof(AmperageBuffer));
+						OutputADCDataAtDisplay(maxAmperage, sensorData[1], sensorData[2], sensorData[3]);
 					}				
 				}
 	
