@@ -156,7 +156,7 @@ void OutputADCDataAtDisplay(uint16_t maxVoltageValue, uint16_t maxAmperageValue,
 	sprintf(firstValueFromADC, "U=%3.1f Ia=%2.1f", (float)CurrentAmperageOnVagon, 
 		(((float)maxAmperageValue * 0.000919 - 2.29) / 0.02));
 	
-	sprintf(secondValueFromADC,"I=%2.1f I=%2.1f", (((float)maxAmperageValueB * 0.000919 - 2.29) / 0.02), 
+	sprintf(secondValueFromADC,"Ib=%2.1f Ic=%2.1f", (((float)maxAmperageValueB * 0.000919 - 2.29) / 0.02), 
 		(((float)maxAmperageValueC * 0.000919 - 2.29) / 0.02));
 	
 	PrintDataOnLCD(firstValueFromADC, 0, 0);

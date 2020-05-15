@@ -9,13 +9,6 @@ void ADC1_Configure(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
-		
-    NVIC_InitTypeDef NVIC_InitStructure;
-    NVIC_InitStructure.NVIC_IRQChannel = ADC1_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
 	
 	ADC_InitTypeDef ADC_InitStructure;
 	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
@@ -27,14 +20,6 @@ void ADC1_Configure(void)
 
 	ADC_Init (ADC1, &ADC_InitStructure);
 			
-	ADC_AnalogWatchdogThresholdsConfig(ADC1, 3200, 0);
-	
-	ADC_AnalogWatchdogSingleChannelConfig(ADC1, ADC_Channel_1);
-	
-	ADC_AnalogWatchdogCmd(ADC1, ADC_AnalogWatchdog_SingleRegEnable);
- 
-	ADC_ITConfig(ADC1, ADC_IT_AWD, ENABLE);
-	
 	ADC_Cmd(ADC1, ENABLE) ;
 	ADC_DMACmd(ADC1, ENABLE);
 	
@@ -69,16 +54,6 @@ void DMAInitializationForADCRecieve(uint16_t *ADCBuffer)
 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
 	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
 	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
-    DMA_Cmd(DMA1_Channel1, ENABLE); //Enable the DMA1 - Channel1
+    DMA_Cmd(DMA1_Channel1, ENABLE); 
 }
 
-void ADC1_IRQHandler(void)
-{
-    if(ADC_GetITStatus(ADC1, ADC_IT_AWD))
-    {		
-		PrintDataOnLCD("    Voltage     ", 0, 0);
-		PrintDataOnLCD("    Overload   ", 0, 1);
-			
-        ADC_ClearITPendingBit(ADC1, ADC_IT_AWD);
-    }
-}
