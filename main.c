@@ -66,17 +66,16 @@ int main(void)
 	}
 
 	DetectCurrentLogFile(RTC_Counter);
-	//IWDGInitialization(200);
+	IWDGInitialization(200);
 	
 	while(1)
 	{
 		RTC_Counter = RTC_GetCounter();
 		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
 		
-		//OutputADCDataAtDisplay(ADCBuffer[0], ADCBuffer[1], ADCBuffer[2], ADCBuffer[3]);	
+		OutputADCDataAtDisplay(ADCBuffer[0], ADCBuffer[1], ADCBuffer[2], ADCBuffer[3]);	
 		SendSensorDataToSDCard(ADCBuffer, &RTC_DateTime);
 		BlinkGreenLed();
-		//delay_ms(300);
-		//IWDG -> KR = 0xAAAA; // перезагрузка		
+		IWDG -> KR = 0xAAAA; // перезагрузка		
 	}
 }

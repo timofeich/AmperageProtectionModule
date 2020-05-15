@@ -27,13 +27,13 @@ void ADC1_Configure(void)
 
 	ADC_Init (ADC1, &ADC_InitStructure);
 			
-//	ADC_AnalogWatchdogThresholdsConfig(ADC1, 3200, 0);
-//	
-//  ADC_AnalogWatchdogSingleChannelConfig(ADC1, ADC_Channel_1);
-//	
-//  ADC_AnalogWatchdogCmd(ADC1, ADC_AnalogWatchdog_SingleRegEnable);
-// 
-//  ADC_ITConfig(ADC1, ADC_IT_AWD, ENABLE);
+	ADC_AnalogWatchdogThresholdsConfig(ADC1, 3200, 0);
+	
+	ADC_AnalogWatchdogSingleChannelConfig(ADC1, ADC_Channel_1);
+	
+	ADC_AnalogWatchdogCmd(ADC1, ADC_AnalogWatchdog_SingleRegEnable);
+ 
+	ADC_ITConfig(ADC1, ADC_IT_AWD, ENABLE);
 	
 	ADC_Cmd(ADC1, ENABLE) ;
 	ADC_DMACmd(ADC1, ENABLE);
@@ -75,13 +75,10 @@ void DMAInitializationForADCRecieve(uint16_t *ADCBuffer)
 void ADC1_IRQHandler(void)
 {
     if(ADC_GetITStatus(ADC1, ADC_IT_AWD))
-    {
-		//SendToUart
-		//Output to SdCard
-		
+    {		
 		PrintDataOnLCD("    Voltage     ", 0, 0);
 		PrintDataOnLCD("    Overload   ", 0, 1);
 			
-        //ADC_ClearITPendingBit(ADC1, ADC_IT_AWD);
+        ADC_ClearITPendingBit(ADC1, ADC_IT_AWD);
     }
 }
