@@ -28,6 +28,7 @@ void ADC1_Configure(void)
 	ADC_Init (ADC1, &ADC_InitStructure);
 			
 	ADC_AnalogWatchdogThresholdsConfig(ADC1, 3200, 0);
+	//add three new AnalogWathdogs
 	
 	ADC_AnalogWatchdogSingleChannelConfig(ADC1, ADC_Channel_1);
 	
