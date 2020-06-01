@@ -15,7 +15,7 @@ void SetSysClockToHSE(void)
 	RCC_DeInit(); //    сброс настроек тактового генератора
 	RCC_HSEConfig(RCC_HSE_ON); //   включение внешнего тактового генератора
 	RCC_PREDIV1Config(RCC_PREDIV1_Source_HSE, RCC_PREDIV1_Div1);
-	RCC_PLLConfig(RCC_PLLSource_PREDIV1 ,RCC_PLLMul_1); 
+	//RCC_PLLConfig(RCC_PLLSource_PREDIV1 ,RCC_PLLMul_1); 
 	RCC_PLLCmd(ENABLE); //  Включаем PLL
 	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);	//На системную шину подаем тактирование с внешнего резонатора
 		

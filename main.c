@@ -59,9 +59,9 @@ int main(void)
 	LCDInitialization();
 	
 	DMAInitializationForADCRecieve(ADCBuffer);
-	IWDGInitialization(1500);	
+	IWDGInitialization(100);	
 	
-	if(RTC_Init() == 0)
+	if(RTC_Init() == 1)
 	{
 		SetStartRTCDate(25, 05, 2020, 19, 56, 30);
 	}
