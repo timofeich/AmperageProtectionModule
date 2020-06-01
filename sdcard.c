@@ -141,13 +141,12 @@ void SendSensorDataToSDCard(uint16_t * sensorData, RTC_DateTimeTypeDef* RTC_Date
 				result = f_lseek(&file, file.fsize); 
 									
 				for(int i = 0; i < 100; i++)
-				{
-					//if(sensorData[0] > 2048)			
+				{	
 					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d \n", hours, minutes, seconds, i * 10, 
-						(int)(((float)sensorData[0] / 1330 - 1.52) * 190.90), 
-						(int)(((float)sensorData[1] * 0.000919 - 2.29) / 0.02),
-						(int)(((float)sensorData[2] * 0.000919 - 2.29) / 0.02),
-						(int)(((float)sensorData[3] * 0.000919 - 2.29) / 0.02)
+						(int)(((float)sensorData[0] / 16) * 1.414), 
+						(int)(((float)sensorData[1] * 0.000835 - 2.54) / 0.0123),
+						(int)(((float)sensorData[2] * 0.000839 - 2.54) / 0.0123),
+						(int)(((float)sensorData[3] * 0.000844 - 2.54) / 0.0123)
 						);			
 					
 					AmperageBuffer[i] = sensorData[0];
@@ -173,12 +172,11 @@ void SendSensorDataToSDCard(uint16_t * sensorData, RTC_DateTimeTypeDef* RTC_Date
 					
 				for(int i = 0; i < 100; i++)
 				{
-					//if(sensorData[0] > 2048)
-					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d \n", hours, minutes, seconds, i * 10, 
-						(int)(((float)sensorData[0] / 1330 - 1.52) * 190.90),
-						(int)(((float)sensorData[1] * 0.000919 - 2.29) / 0.02),
-						(int)(((float)sensorData[2] * 0.000919 - 2.29) / 0.02),
-						(int)(((float)sensorData[3] * 0.000919 - 2.29) / 0.02)
+					f_printf(&file, "%02d:%02d:%02d.%03d \t %03d \t %03d \t %03d \t %03d \n", hours, minutes, seconds, i * 10,
+						(int)(((float)sensorData[0] / 16) * 1.414),
+						(int)(((float)sensorData[1] * 0.000835 - 2.54) / 0.0123),
+						(int)(((float)sensorData[2] * 0.000839 - 2.54) / 0.0123),
+						(int)(((float)sensorData[3] * 0.000844 - 2.54) / 0.0123)
 						);		
 					
 					AmperageBuffer[i] = sensorData[0];

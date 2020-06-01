@@ -6,5 +6,5 @@
 void LEDsInitialization(void);
 void BlinkGreenLed(void);
 void BlinkBlueLed(void);
-
+void BlinkCGreenLed(void);
 #endif //LED_LED_H_

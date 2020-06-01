@@ -49,33 +49,41 @@ int main(void)
 {
 	uint32_t RTC_Counter = 0;
 	uint16_t AmperageBuffer[25] = { };
-	
 	LEDsInitialization();
-	SetSysClockToHSE();
+	
+	//SetSysClockToHSE();
 	//RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 	Timer2Initialization();
-			
+		
 	I2CInitialization();	
 	LCDInitialization();
 	
 	DMAInitializationForADCRecieve(ADCBuffer);
+	IWDGInitialization(1500);	
 	
-	if(RTC_Init() == 1)
+	if(RTC_Init() == 0)
 	{
-		SetStartRTCDate(27, 03, 2020, 10, 55, 50);
+		SetStartRTCDate(25, 05, 2020, 19, 56, 30);
 	}
 
-	DetectCurrentLogFile(RTC_Counter);
-	IWDGInitialization(200);
+//	DetectCurrentLogFile(RTC_Counter);
 	
-	while(1)
+	while(1)		
 	{
-		RTC_Counter = RTC_GetCounter();
-		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
-		
-		//OutputADCDataAtDisplay(ADCBuffer[0], ADCBuffer[1], ADCBuffer[2], ADCBuffer[3]);	
-		SendSensorDataToSDCard(ADCBuffer, &RTC_DateTime);
+//		RTC_Counter = RTC_GetCounter();
+//		RTC_GetDateTime(RTC_Counter, &RTC_DateTime);
+
+		//SendSensorDataToSDCard(ADCBuffer, &RTC_DateTime);
+					
 		BlinkGreenLed();
-		IWDG -> KR = 0xAAAA; 		
+		
+		//OutputADCDataAtDisplay(ADCBuffer[0], ADCBuffer[1], ADCBuffer[2], ADCBuffer[3]);
+		OutputADCDataAtDisplayWithoutSdCard(ADCBuffer);
+//		while (RTC_Counter == RTC_GetCounter()) 
+//		{
+
+//		}
+		
+		IWDG -> KR = 0xAAAA;		
 	}
 }

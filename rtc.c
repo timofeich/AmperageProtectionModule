@@ -13,41 +13,41 @@ void SetSysClockToHSE(void)
 	ErrorStatus HSEStartUpStatus;
   
 	RCC_DeInit(); //    сброс настроек тактового генератора
-	RCC_HSICmd(DISABLE); // выключение внутреннего RC HSI 8МГц генератора
-	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
-	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_6);
+//	RCC_HSICmd(DISABLE); // выключение внутреннего RC HSI 8МГц генератора
+//	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
+//	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_6);
 
-	RCC_PLLCmd(ENABLE);
-	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
-//	RCC_HSEConfig(RCC_HSE_ON); //   включение внешнего тактового генератора
-//	RCC_PREDIV1Config(RCC_PREDIV1_Source_HSE, RCC_PREDIV1_Div1);//  Предделитель PREDIV1: HSE перед множителем PLLMUL
-//	RCC_PLLConfig(RCC_PLLSource_PREDIV1 ,RCC_PLLMul_2); //  тактирование от HSE с PREDIV1 8/1*3 = 24МГц
-//	RCC_PLLCmd(ENABLE); //  Включаем PLL
-//	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);	//На системную шину подаем тактирование с внешнего резонатора
-//	
+//	RCC_PLLCmd(ENABLE);
+//	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
+	RCC_HSEConfig(RCC_HSE_ON); //   включение внешнего тактового генератора
+	RCC_PREDIV1Config(RCC_PREDIV1_Source_HSE, RCC_PREDIV1_Div1);//  Предделитель PREDIV1: HSE перед множителем PLLMUL
+	RCC_PLLConfig(RCC_PLLSource_PREDIV1 ,RCC_PLLMul_2); //  тактирование от HSE с PREDIV1 8/1*3 = 24МГц
+	RCC_PLLCmd(ENABLE); //  Включаем PLL
+	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);	//На системную шину подаем тактирование с внешнего резонатора
 	
 	
-//	RCC_DeInit();
-//	RCC_HSEConfig(RCC_HSE_ON);
-//	HSEStartUpStatus = RCC_WaitForHSEStartUp();
+	
+	RCC_DeInit();
+	RCC_HSEConfig(RCC_HSE_ON);
+	HSEStartUpStatus = RCC_WaitForHSEStartUp();
 
-//	if (HSEStartUpStatus == SUCCESS)
-//	{
-//		RCC_HCLKConfig(RCC_SYSCLK_Div1);
-//		RCC_PCLK2Config(RCC_HCLK_Div1);
-//		RCC_PCLK1Config(RCC_HCLK_Div1);
-//		RCC_SYSCLKConfig(RCC_SYSCLKSource_HSE);
-//		
+	if (HSEStartUpStatus == SUCCESS)
+	{
+		RCC_HCLKConfig(RCC_SYSCLK_Div1);
+		RCC_PCLK2Config(RCC_HCLK_Div1);
+		RCC_PCLK1Config(RCC_HCLK_Div1);
+		RCC_SYSCLKConfig(RCC_SYSCLKSource_HSE);
+		
 //		while (RCC_GetSYSCLKSource() != 0x04)
 //		{ 	
 //		}
-//	}
-//    else
-//    { 
-//        while (1)
-//        {
-//        }
-//    }
+	}
+    else
+    { 
+        while (1)
+        {
+        }
+    }
 }
 
 uint8_t RTC_Init(void)

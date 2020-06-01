@@ -19,7 +19,7 @@ void ADC1_Configure(void)
 	ADC_InitStructure.ADC_NbrOfChannel = 4;
 
 	ADC_Init (ADC1, &ADC_InitStructure);
-			
+					
 	ADC_Cmd(ADC1, ENABLE) ;
 	ADC_DMACmd(ADC1, ENABLE);
 	
@@ -29,7 +29,7 @@ void ADC1_Configure(void)
 	while(ADC_GetCalibrationStatus(ADC1));
 		
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 0, ADC_SampleTime_1Cycles5);
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_239Cycles5);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_1Cycles5);
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 2, ADC_SampleTime_1Cycles5);
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 3, ADC_SampleTime_1Cycles5);
 	

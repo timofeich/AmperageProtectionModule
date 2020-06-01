@@ -1,6 +1,7 @@
 #include "lcd1602.h"
 
 uint8_t LCD_ADDR = 0x3F;
+int16_t AmperageBuffer1[100];
 
 static char StatusOfSdCard[16][17] = 
 {
@@ -40,7 +41,7 @@ void I2CInitialization(void)
 	I2C_InitStructure.I2C_OwnAddress1 = 0x15;
 	I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
 	I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-	I2C_InitStructure.I2C_ClockSpeed = 50000;
+	I2C_InitStructure.I2C_ClockSpeed = 150000;
 
 	I2C_Cmd(I2C1, ENABLE);
 	I2C_Init(I2C1, &I2C_InitStructure);
@@ -87,6 +88,7 @@ void SendCommandToLCD(char cmd)
 	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
 	
 	I2C_Send7bitAddress(I2C1, LCD_ADDR << 1, I2C_Direction_Transmitter);
+
 	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
 
 	for(int i = 0; i < 4; i++)
@@ -151,16 +153,34 @@ void OutputADCDataAtDisplay(uint16_t maxVoltageValue, uint16_t maxAmperageValue,
 	char firstValueFromADC[17];
 	char secondValueFromADC[17]; 
 	
-	float CurrentAmperageOnVagon = (((float)maxVoltageValue / 1330 - 1.52) * 135.01);
+	float CurrentVoltageOnVagon = ((float)maxVoltageValue / 16);
 	
-	sprintf(firstValueFromADC, "U=%3.1f Ia=%2.1f", (float)CurrentAmperageOnVagon, 
-		(((float)maxAmperageValue * 0.000919 - 2.29) / 0.02));
+	sprintf(firstValueFromADC, "U=%.1f Ia=%.1f", CurrentVoltageOnVagon, 
+		(((float)maxAmperageValue * 0.000835 - 2.54) / 0.0123));
 	
-	sprintf(secondValueFromADC,"Ib=%2.1f Ic=%2.1f", (((float)maxAmperageValueB * 0.000919 - 2.29) / 0.02), 
-		(((float)maxAmperageValueC * 0.000919 - 2.29) / 0.02));
+	sprintf(secondValueFromADC,"Ib=%.1f Ic=%.1f", (((float)maxAmperageValueB * 0.000839 - 2.54) / 0.0123), 
+		(((float)maxAmperageValueC * 0.000844 - 2.54) / 0.0123));
 	
 	PrintDataOnLCD(firstValueFromADC, 0, 0);
 	PrintDataOnLCD(secondValueFromADC, 0, 1);
+}
+
+void OutputADCDataAtDisplayWithoutSdCard(uint16_t * sensorData)
+{
+	char firstValueFromADC[17];
+	char secondValueFromADC[17]; 
+		
+	for(int i = 0; i < 100; i++)
+	{
+		AmperageBuffer1[i] = sensorData[0];
+					
+		if(i % 99 == 0 && i != 0)
+		{
+			int maxAmperage = GetMaxValue(AmperageBuffer1);
+			OutputADCDataAtDisplay(maxAmperage, sensorData[1], sensorData[2], sensorData[3]);
+		}	
+		delay_ms(10);
+	}
 }
 
 void OutputSdCardStatusOnLCD(int status)

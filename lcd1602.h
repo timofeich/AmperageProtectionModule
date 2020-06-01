@@ -19,5 +19,5 @@ void PrintDataOnLCD(char * string, uint8_t x, uint8_t y);
 
 void OutputADCDataAtDisplay(uint16_t maxVoltageValue, uint16_t maxAmperageValue, uint16_t maxAmperageValueB, uint16_t maxAmperageValueC);
 void OutputSdCardStatusOnLCD(int status);
-
+void OutputADCDataAtDisplayWithoutSdCard(uint16_t * sensorData);
 #endif //LCD1602_LCD1602_H_
