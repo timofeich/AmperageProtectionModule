@@ -1,7 +1,6 @@
 #include "lcd1602.h"
 
 uint8_t LCD_ADDR = 0x3F;
-int16_t AmperageBuffer1[100];
 
 static char StatusOfSdCard[16][17] = 
 {
@@ -163,24 +162,6 @@ void OutputADCDataAtDisplay(uint16_t maxVoltageValue, uint16_t maxAmperageValue,
 	
 	PrintDataOnLCD(firstValueFromADC, 0, 0);
 	PrintDataOnLCD(secondValueFromADC, 0, 1);
-}
-
-void OutputADCDataAtDisplayWithoutSdCard(uint16_t * sensorData)
-{
-	char firstValueFromADC[17];
-	char secondValueFromADC[17]; 
-		
-	for(int i = 0; i < 100; i++)
-	{
-		AmperageBuffer1[i] = sensorData[0];
-					
-		if(i % 99 == 0 && i != 0)
-		{
-			int maxAmperage = GetMaxValue(AmperageBuffer1);
-			OutputADCDataAtDisplay(maxAmperage, sensorData[1], sensorData[2], sensorData[3]);
-		}	
-		delay_ms(10);
-	}
 }
 
 void OutputSdCardStatusOnLCD(int status)
