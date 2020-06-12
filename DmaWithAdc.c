@@ -28,9 +28,15 @@ void ADC1_Configure(void)
 	ADC_Init (ADC1, &ADC_InitStructure);
 			
 	ADC_AnalogWatchdogThresholdsConfig(ADC1, 3200, 0);
+	ADC_AnalogWatchdogThresholdsConfig(ADC1, 3200, 0);
+	ADC_AnalogWatchdogThresholdsConfig(ADC1, 3200, 0);
+	ADC_AnalogWatchdogThresholdsConfig(ADC1, 3200, 0);
 	//add three new AnalogWathdogs
 	
+	ADC_AnalogWatchdogSingleChannelConfig(ADC1, ADC_Channel_0);
 	ADC_AnalogWatchdogSingleChannelConfig(ADC1, ADC_Channel_1);
+	ADC_AnalogWatchdogSingleChannelConfig(ADC1, ADC_Channel_2);
+	ADC_AnalogWatchdogSingleChannelConfig(ADC1, ADC_Channel_3);
 	
 	ADC_AnalogWatchdogCmd(ADC1, ADC_AnalogWatchdog_SingleRegEnable);
  
@@ -77,6 +83,9 @@ void ADC1_IRQHandler(void)
 {
     if(ADC_GetITStatus(ADC1, ADC_IT_AWD))
     {		
+		while(USART_GetFlagStatus(USART1, USART_FLAG_TXE)== RESET){}
+		USART_SendData(USART1, 255);
+
 		PrintDataOnLCD("    Voltage     ", 0, 0);
 		PrintDataOnLCD("    Overload   ", 0, 1);
 			
